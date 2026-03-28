@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Not My Road - Civic tech platform for reporting road issues in Delhi
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: reports
+    description: Road issue reports
+  - name: auth
+    description: Authentication operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,200 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /reports:
+    get:
+      operationId: listReports
+      tags: [reports]
+      summary: List all reports
+      description: Fetch all road issue reports (public feed)
+      parameters:
+        - name: userId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter reports by user ID
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, in_progress, resolved]
+          description: Filter by status
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: List of reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Report"
+    post:
+      operationId: createReport
+      tags: [reports]
+      summary: Submit a new report
+      description: Submit a new road issue report
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReportInput"
+      responses:
+        "201":
+          description: Report created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "400":
+          description: Invalid input
+
+  /reports/{id}:
+    get:
+      operationId: getReport
+      tags: [reports]
+      summary: Get a single report
+      description: Fetch a single report by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Report details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Report not found
+    patch:
+      operationId: updateReportStatus
+      tags: [reports]
+      summary: Update report status
+      description: Update the status of a report
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReportStatusInput"
+      responses:
+        "200":
+          description: Report updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Report"
+        "404":
+          description: Report not found
+
+  /stats:
+    get:
+      operationId: getStats
+      tags: [reports]
+      summary: Get platform statistics
+      description: Returns total reports, resolved count, and percentage
+      responses:
+        "200":
+          description: Platform stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stats"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: User already exists
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout current user
+      responses:
+        "200":
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                required:
+                  - message
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +232,201 @@ components:
       required:
         - status
 
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - email
+        - name
+        - createdAt
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        message:
+          type: string
+      required:
+        - user
+        - message
+
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    RegisterInput:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+      required:
+        - email
+        - password
+        - name
+
+    TimelineEvent:
+      type: object
+      properties:
+        status:
+          type: string
+        note:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - status
+        - timestamp
+
+    Report:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: integer
+        userName:
+          type: string
+        imageUrl:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        area:
+          type: string
+        issueType:
+          type: string
+          enum: [pothole, broken_road, waterlogging, damaged_divider, missing_signage, other]
+        roadType:
+          type: string
+          enum: [main_road, internal_road, highway]
+        description:
+          type: string
+        authority:
+          type: string
+          enum: [MCD, PWD, NDMC, NHAI, DDA, other]
+        status:
+          type: string
+          enum: [pending, in_progress, resolved]
+        tweetDraft:
+          type: string
+        timeline:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimelineEvent"
+        daysUnresolved:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - userId
+        - userName
+        - imageUrl
+        - latitude
+        - longitude
+        - area
+        - issueType
+        - roadType
+        - authority
+        - status
+        - tweetDraft
+        - timeline
+        - daysUnresolved
+        - createdAt
+        - updatedAt
+
+    CreateReportInput:
+      type: object
+      properties:
+        userId:
+          type: integer
+        userName:
+          type: string
+        imageUrl:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        area:
+          type: string
+        issueType:
+          type: string
+          enum: [pothole, broken_road, waterlogging, damaged_divider, missing_signage, other]
+        roadType:
+          type: string
+          enum: [main_road, internal_road, highway]
+        description:
+          type: string
+        authority:
+          type: string
+          enum: [MCD, PWD, NDMC, NHAI, DDA, other]
+      required:
+        - userId
+        - userName
+        - imageUrl
+        - latitude
+        - longitude
+        - area
+        - issueType
+        - roadType
+        - authority
+
+    UpdateReportStatusInput:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, in_progress, resolved]
+        note:
+          type: string
+      required:
+        - status
+
+    Stats:
+      type: object
+      properties:
+        totalReports:
+          type: integer
+        resolvedReports:
+          type: integer
+        resolvedPercentage:
+          type: number
+        pendingReports:
+          type: integer
+        inProgressReports:
+          type: integer
+      required:
+        - totalReports
+        - resolvedReports
+        - resolvedPercentage
+        - pendingReports
+        - inProgressReports

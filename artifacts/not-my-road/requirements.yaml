@@ -1,0 +1,18 @@
+packages:
+  "framer-motion": "For page transitions, smooth enter animations, and micro-interactions"
+  "date-fns": "For formatting human-readable timestamps and timeline dates"
+  "clsx": "Utility for constructing className strings conditionally"
+  "tailwind-merge": "Utility to resolve Tailwind class conflicts"
+
+images:
+  - path: "artifacts/not-my-road/public/images/hero-bg.png"
+    description: "Cinematic abstract dark urban street at night with glowing neon green and cyan light trails, highly detailed tech aesthetic"
+    aspect_ratio: "16:9"
+  - path: "artifacts/not-my-road/public/images/mock-map.png"
+    description: "Minimalist dark mode map interface of Delhi streets with glowing neon green routes and a central high-tech pin marker"
+    aspect_ratio: "16:9"
+
+notes:
+  - "App uses @workspace/api-client-react for data fetching"
+  - "Using Wouter for client-side routing"
+  - "The app relies on mock GPS coords and base64 image strings as placeholders for actual device hardware APIs"
