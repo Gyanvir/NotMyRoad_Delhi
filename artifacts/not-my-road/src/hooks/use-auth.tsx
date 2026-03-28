@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, ReactNode } from "react";
+import { createContext, useContext, useCallback, useState, ReactNode } from "react";
 import { useGetCurrentUser, useLogin, useLogout, useRegister, getGetCurrentUserQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { User, LoginInput, RegisterInput } from "@workspace/api-client-react";
@@ -15,8 +15,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const { data: user, isLoading } = useGetCurrentUser({
+  const { data: user, isLoading: isQueryLoading, isFetching } = useGetCurrentUser({
     query: { retry: false },
   });
 
@@ -24,30 +25,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useRegister();
   const logoutMutation = useLogout();
 
-  const refetchUser = useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: getGetCurrentUserQueryKey() });
+  const refetchUser = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: getGetCurrentUserQueryKey() });
+    await queryClient.refetchQueries({ queryKey: getGetCurrentUserQueryKey() });
   }, [queryClient]);
 
   const login = useCallback(
     async (input: LoginInput) => {
-      await loginMutation.mutateAsync({ data: input });
-      refetchUser();
+      setIsTransitioning(true);
+      try {
+        await loginMutation.mutateAsync({ data: input });
+        await refetchUser();
+      } finally {
+        setIsTransitioning(false);
+      }
     },
     [loginMutation, refetchUser],
   );
 
   const register = useCallback(
     async (input: RegisterInput) => {
-      await registerMutation.mutateAsync({ data: input });
-      refetchUser();
+      setIsTransitioning(true);
+      try {
+        await registerMutation.mutateAsync({ data: input });
+        await refetchUser();
+      } finally {
+        setIsTransitioning(false);
+      }
     },
     [registerMutation, refetchUser],
   );
 
   const logout = useCallback(async () => {
-    await logoutMutation.mutateAsync();
-    refetchUser();
+    setIsTransitioning(true);
+    try {
+      await logoutMutation.mutateAsync();
+      await refetchUser();
+    } finally {
+      setIsTransitioning(false);
+    }
   }, [logoutMutation, refetchUser]);
+
+  const isLoading = isQueryLoading || isFetching || isTransitioning;
 
   return (
     <AuthContext.Provider

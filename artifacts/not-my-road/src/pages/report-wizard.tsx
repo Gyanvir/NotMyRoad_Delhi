@@ -16,7 +16,7 @@ const STEPS = [
 ];
 
 export default function ReportWizard() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const createReportMutation = useCreateReport();
 
@@ -31,6 +31,14 @@ export default function ReportWizard() {
     description: "",
     authority: "MCD" as keyof typeof CreateReportInputAuthority,
   });
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!user) {
     setLocation("/login");

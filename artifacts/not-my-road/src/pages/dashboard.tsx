@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useListReports, ListReportsStatus } from "@workspace/api-client-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,18 +8,55 @@ import { formatDistanceToNow } from "date-fns";
 import { formatReportId } from "@/lib/utils";
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
+  const [, setLocation] = useLocation();
   const [filter, setFilter] = useState<"all" | ListReportsStatus>("all");
   
   // We pass userId to filter for only this user's reports
-  const { data: reports, isLoading } = useListReports({ 
+  const { data: reports, isLoading: reportsLoading } = useListReports({ 
     userId: user?.id?.toString(),
     status: filter === "all" ? undefined : filter
   }, {
     query: { enabled: !!user }
   });
 
-  if (!user) return <div className="text-center py-20">Please log in.</div>;
+  const isLoading = reportsLoading;
+
+  if (authLoading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 gap-6 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center">
+          <span className="text-primary font-bold text-2xl">NR</span>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold mb-2">Sign in to view your dashboard</h2>
+          <p className="text-muted-foreground mb-6">Track all the road issues you've reported across Delhi.</p>
+        </div>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setLocation("/login")}
+            className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-colors"
+          >
+            Sign In
+          </button>
+          <button
+            onClick={() => setLocation("/register")}
+            className="px-6 py-3 rounded-xl border border-border text-foreground font-semibold hover:border-primary/50 transition-colors"
+          >
+            Register
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
