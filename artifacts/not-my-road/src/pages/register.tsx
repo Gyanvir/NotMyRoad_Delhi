@@ -24,7 +24,8 @@ export default function Register() {
       await register({ name, email, password });
       setLocation("/dashboard");
     } catch (err: any) {
-      setError("Registration failed. Please try again.");
+      const msg = err?.data?.error || err?.message || "Registration failed. Please try again.";
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
