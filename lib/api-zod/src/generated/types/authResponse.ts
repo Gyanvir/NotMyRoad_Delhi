@@ -10,4 +10,6 @@ import type { User } from "./user";
 export interface AuthResponse {
   user: User;
   message: string;
+  /** JWT bearer token for mobile clients */
+  token?: string;
 }

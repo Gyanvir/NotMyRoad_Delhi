@@ -3,6 +3,7 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import session from "express-session";
 import router from "./routes";
+import { verifyToken } from "./routes/auth";
 import { logger } from "./lib/logger";
 
 const app: Express = express();
@@ -50,6 +51,19 @@ app.use(
     },
   }),
 );
+
+// JWT middleware: allows mobile clients to auth via Bearer token
+app.use((req: any, _res, next) => {
+  const auth = req.headers["authorization"];
+  if (auth?.startsWith("Bearer ")) {
+    const token = auth.slice(7);
+    const payload = verifyToken(token);
+    if (payload && req.session && !req.session.userId) {
+      req.session.userId = payload.userId;
+    }
+  }
+  next();
+});
 
 app.use("/api", router);
 

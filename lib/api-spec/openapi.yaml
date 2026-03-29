@@ -257,6 +257,9 @@ components:
           $ref: "#/components/schemas/User"
         message:
           type: string
+        token:
+          type: string
+          description: JWT bearer token for mobile clients
       required:
         - user
         - message

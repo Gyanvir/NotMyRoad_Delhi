@@ -22,7 +22,8 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 artifacts-monorepo/
 ├── artifacts/              # Deployable applications
 │   ├── api-server/         # Express API server
-│   └── not-my-road/        # React + Vite frontend (Not My Road app)
+│   ├── not-my-road/        # React + Vite frontend (Not My Road app)
+│   └── nmr-mobile/         # React Native Expo mobile app
 ├── lib/                    # Shared libraries
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
@@ -41,13 +42,18 @@ artifacts-monorepo/
 A civic-tech platform for reporting road issues in Delhi, India.
 
 ### Features
-- Email/password authentication (session-based)
+- Email/password authentication (session cookies for web, JWT Bearer for mobile)
 - Multi-step report wizard (photo, location, issue type, authority)
 - User dashboard with report status and timeline
 - Community feed with filtering
 - Home screen with live stats
 - Tweet draft generation per report
-- Dark urban theme with neon green highlights
+- Dark urban theme with neon green (#00FF7F) highlights
+
+### Auth Strategy
+- **Web**: express-session cookies (httpOnly, 7-day)
+- **Mobile**: JWT returned in login/register response, stored in AsyncStorage, sent as `Authorization: Bearer <token>`
+- Backend accepts both via JWT middleware in `app.ts` that populates `req.session.userId` from the Bearer token
 
 ### Demo account
 - Email: demo@notmyroad.in
@@ -68,6 +74,23 @@ A civic-tech platform for reporting road issues in Delhi, India.
 - `POST /api/auth/login` - login
 - `GET /api/auth/me` - current user
 - `POST /api/auth/logout` - logout
+
+### Mobile App (`artifacts/nmr-mobile`, `@workspace/nmr-mobile`)
+
+React Native + Expo mobile app sharing the same API client.
+
+- **Stack**: Expo Router (file-based routing), React Query, `@workspace/api-client-react`
+- **Auth**: JWT stored in AsyncStorage; `setAuthTokenGetter` supplies token on every API request
+- **Screens**:
+  - `app/(tabs)/index.tsx` — Home: live stats, recent reports, report CTA
+  - `app/(tabs)/feed.tsx` — Community Feed with status filter chips
+  - `app/(tabs)/report.tsx` — 4-step report wizard (details, location, authority, review)
+  - `app/(tabs)/dashboard.tsx` — My Reports with per-status stats
+  - `app/(tabs)/profile.tsx` — Login/Register form + profile view
+  - `app/report/[id].tsx` — Report detail with timeline, share-as-tweet
+- **Components**: `StatusBadge`, `ReportCard`, `StatCard`
+- **Theme**: `constants/colors.ts` — dark bg `#080808`, neon green `#00FF7F`
+- **Base URL**: Set at layout init from `EXPO_PUBLIC_DOMAIN` env var
 
 ## TypeScript & Composite Projects
 

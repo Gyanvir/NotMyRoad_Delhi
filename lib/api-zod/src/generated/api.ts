@@ -203,6 +203,10 @@ export const LoginResponse = zod.object({
     createdAt: zod.coerce.date(),
   }),
   message: zod.string(),
+  token: zod
+    .string()
+    .optional()
+    .describe("JWT bearer token for mobile clients"),
 });
 
 /**

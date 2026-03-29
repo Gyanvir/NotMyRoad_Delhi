@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
@@ -10,6 +11,22 @@ declare module "express-session" {
 }
 
 const router: IRouter = Router();
+
+function getJwtSecret(): string {
+  return process.env["SESSION_SECRET"] ?? "not-my-road-jwt-secret";
+}
+
+function signToken(userId: number): string {
+  return jwt.sign({ userId }, getJwtSecret(), { expiresIn: "30d" });
+}
+
+export function verifyToken(token: string): { userId: number } | null {
+  try {
+    return jwt.verify(token, getJwtSecret()) as { userId: number };
+  } catch {
+    return null;
+  }
+}
 
 router.post("/auth/register", async (req, res) => {
   try {
@@ -26,9 +43,11 @@ router.post("/auth/register", async (req, res) => {
     const passwordHash = await bcrypt.hash(password, 10);
     const [user] = await db.insert(usersTable).values({ email, passwordHash, name }).returning();
     req.session!.userId = user.id;
+    const token = signToken(user.id);
     res.status(201).json({
       user: { id: user.id, email: user.email, name: user.name, createdAt: user.createdAt },
       message: "Registered successfully",
+      token,
     });
   } catch (err) {
     req.log.error(err, "Error registering user");
@@ -54,9 +73,11 @@ router.post("/auth/login", async (req, res) => {
       return;
     }
     req.session!.userId = user.id;
+    const token = signToken(user.id);
     res.json({
       user: { id: user.id, email: user.email, name: user.name, createdAt: user.createdAt },
       message: "Logged in successfully",
+      token,
     });
   } catch (err) {
     req.log.error(err, "Error logging in");
