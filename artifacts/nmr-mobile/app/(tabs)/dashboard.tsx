@@ -32,12 +32,14 @@ export default function DashboardScreen() {
   const { user } = useAuth();
   const [filter, setFilter] = useState<Filter>("all");
 
+  const params = {
+    userId: user?.id?.toString(),
+    status: filter === "all" ? undefined : (filter as any),
+  };
+
   const { data: reports, isLoading, refetch, isRefetching } = useListReports(
-    {
-      userId: user?.id?.toString(),
-      status: filter === "all" ? undefined : (filter as any),
-    },
-    { query: { enabled: !!user, retry: false } }
+    params,
+    { query: { queryKey: ['reports', params], enabled: !!user, retry: false } }
   );
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -64,8 +66,8 @@ export default function DashboardScreen() {
   }
 
   const allReports = reports ?? [];
-  const resolved = allReports.filter((r) => r.status === "resolved").length;
-  const pending = allReports.filter((r) => r.status === "pending").length;
+  const resolved = allReports.filter((r: {status: string}) => r.status === "resolved").length;
+  const pending = allReports.filter((r: {status: string}) => r.status === "pending").length;
 
   return (
     <View style={styles.container}>

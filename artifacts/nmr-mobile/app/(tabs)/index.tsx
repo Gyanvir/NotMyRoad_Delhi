@@ -17,18 +17,22 @@ import { StatCard } from "@/components/StatCard";
 import { ReportCard } from "@/components/ReportCard";
 import { useAuth } from "@/contexts/AuthContext";
 
+// console.log("REPORTS DATA 👉", reports);
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
 
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = useGetStats({
-    query: { retry: false },
+    query:{
+      queryKey:['stats'],
+      retry: false,
+    },
   });
 
   const { data: reports, isLoading: reportsLoading, refetch: refetchReports } = useListReports(
     { limit: 5 },
-    { query: { retry: false } }
+    // { query: { retry: false } }
   );
 
   const isRefreshing = statsLoading || reportsLoading;
@@ -123,7 +127,7 @@ export default function HomeScreen() {
             <Text style={styles.emptyText}>No reports yet</Text>
           </View>
         ) : (
-          reports.slice(0, 4).map((r) => <ReportCard key={r.id} report={r} />)
+          (Array.isArray(reports) ? reports : []).slice(0, 4).map((r) => <ReportCard key={r.id} report={r} />)
         )}
       </View>
 

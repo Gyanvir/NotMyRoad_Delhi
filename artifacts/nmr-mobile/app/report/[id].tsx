@@ -41,8 +41,8 @@ export default function ReportDetailScreen() {
   const insets = useSafeAreaInsets();
 
   const { data: report, isLoading, isError } = useGetReport(
-    { id: Number(id) },
-    { query: { retry: false } }
+    Number(id),
+    { query: { queryKey: ['report', Number(id)], retry: false } }
   );
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -54,7 +54,7 @@ export default function ReportDetailScreen() {
 
     try {
       if (Platform.OS === "web") {
-        await navigator.clipboard?.writeText(tweetText);
+        await (navigator as any).clipboard?.writeText(tweetText);
         Alert.alert("Copied!", "Tweet draft copied to clipboard");
       } else {
         await Share.share({ message: tweetText });

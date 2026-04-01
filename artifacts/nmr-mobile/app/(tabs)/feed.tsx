@@ -26,10 +26,16 @@ const FILTERS: { key: Filter; label: string }[] = [
 export default function FeedScreen() {
   const insets = useSafeAreaInsets();
   const [filter, setFilter] = useState<Filter>("all");
+  const params = { status: filter === "all" ? undefined : (filter as any) };
 
   const { data: reports, isLoading, refetch, isRefetching } = useListReports(
-    { status: filter === "all" ? undefined : (filter as any) },
-    { query: { retry: false } }
+    params,
+    {
+      query: {
+        queryKey: ['reports', params], // Include queryKey to match dependencies
+        retry: false,
+      },
+    }
   );
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -63,7 +69,7 @@ export default function FeedScreen() {
         </View>
       ) : (
         <FlatList
-          data={reports ?? []}
+          data={Array.isArray(reports) ? reports : []}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => <ReportCard report={item} />}
           contentContainerStyle={styles.list}

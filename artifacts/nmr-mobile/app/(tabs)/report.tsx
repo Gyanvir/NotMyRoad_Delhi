@@ -9,6 +9,7 @@ import {
   Platform,
   Image,
   Alert,
+  Pressable,
   ActivityIndicator,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,6 +19,8 @@ import * as Haptics from "expo-haptics";
 import { useCreateReport } from "@workspace/api-client-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Colors } from "@/constants/colors";
+import * as ImagePicker from 'expo-image-picker';
+
 
 const ISSUE_TYPES = [
   { key: "pothole", label: "Pothole" },
@@ -45,22 +48,39 @@ const AUTHORITIES = [
 const STEPS = ["Details", "Location", "Authority", "Review"];
 
 export default function ReportScreen() {
+  const createMutation = useCreateReport();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user } = useAuth();
-  const createMutation = useCreateReport();
-
   const [step, setStep] = useState(0);
-  const [issueType, setIssueType] = useState("pothole");
-  const [roadType, setRoadType] = useState("main_road");
-  const [description, setDescription] = useState("");
+  const [issueType, setIssueType] = useState("");
+  const [roadType, setRoadType] = useState("");
   const [area, setArea] = useState("");
-  const [authority, setAuthority] = useState("MCD");
-  const [imageUrl, setImageUrl] = useState("");
+  const [authority, setAuthority] = useState("");
+  const [description, setDescription] = useState("");
+  // const [image, setImage] = useState
+  const [image, setImage] = useState<any>(null);
+  // const [imageUrl, setImageUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
+  const pickImage = async () => {
+  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
+  if (!permission.granted) {
+    Alert.alert('Permission required', 'Allow gallery access');
+    return;
+  }
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    quality: 0.7,
+  });
+
+  if (!result.canceled) {
+    setImage(result.assets[0]);
+  }
+};
   if (!user) {
     return (
       <View style={[styles.container, styles.center, { paddingTop: topPad }]}>
@@ -104,7 +124,8 @@ export default function ReportScreen() {
           authority: authority as any,
           description,
           area,
-          imageUrl: imageUrl || "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=800",
+          imageUrl: image ? image.uri : undefined,
+          // imageUrl: imageUrl || "https://thepatriot.in/reports/roads-in-disrepair-citizens-in-despair-20288",
           latitude: 28.6139,
           longitude: 77.209,
         },
@@ -220,23 +241,36 @@ export default function ReportScreen() {
               </View>
             </View>
 
-            <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Add a photo (optional)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Paste an image URL..."
-              placeholderTextColor={Colors.textMuted}
-              value={imageUrl}
-              onChangeText={setImageUrl}
-              autoCapitalize="none"
-              keyboardType="url"
-            />
-            {imageUrl ? (
-              <Image source={{ uri: imageUrl }} style={styles.imagePreview} resizeMode="cover" />
-            ) : null}
+            <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Add a photo</Text>
+            <Pressable
+              onPress={pickImage}
+              style={{
+                backgroundColor: '#00FF7F',
+                padding: 14,
+                borderRadius: 12,
+                alignItems: 'center',
+                marginBottom: 16,
+              }}
+            >
+              <Text style={{ color: '#000', fontWeight: 'bold' }}>
+                {image ? "Change Photo" : "Upload Photo"}
+              </Text>
+            </Pressable>
+            {image && (
+              <Image
+                source={{ uri: image.uri }}
+                style={{
+                  width: '100%',
+                  height: 200,
+                  borderRadius: 12,
+                  marginBottom: 16,
+                }}
+              />
+            )}
           </View>
-        )}
 
-        {/* Step 2: Authority */}
+        )}{/* Step 2: Authority */}
+
         {step === 2 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Responsible authority</Text>
@@ -285,8 +319,8 @@ export default function ReportScreen() {
               </View>
             ))}
 
-            {imageUrl ? (
-              <Image source={{ uri: imageUrl }} style={styles.imagePreview} resizeMode="cover" />
+            {image ? (
+              <Image source={{ uri: image.uri }} style={styles.imagePreview} resizeMode="cover" />
             ) : null}
 
             <View style={styles.tweetBox}>

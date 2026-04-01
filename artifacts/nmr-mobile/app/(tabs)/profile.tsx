@@ -29,10 +29,17 @@ export default function ProfileScreen() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState<string>('all');
+  const params = { userId: user?.id?.toString(), status: filter === "all" ? undefined : (filter as any) };
 
-  const { data: reports } = useListReports(
-    { userId: user?.id?.toString() },
-    { query: { enabled: !!user } }
+  const { data: reports, isLoading, refetch, isRefetching } = useListReports(
+    params,
+    {
+      query: {
+        queryKey: ['reports', params], // <-- required!
+        enabled: !!user,
+      },
+    }
   );
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -57,6 +64,7 @@ export default function ProfileScreen() {
       }
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: any) {
+      console.log("Registration error:", e);
       const msg = e?.data?.error ?? (mode === "login" ? "Invalid credentials" : "Registration failed");
       setError(msg);
     } finally {
@@ -88,8 +96,8 @@ export default function ProfileScreen() {
 
   if (user) {
     const totalReports = reports?.length ?? 0;
-    const resolved = reports?.filter((r) => r.status === "resolved").length ?? 0;
-    const initials = user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+    const resolved = reports?.filter((r: {status: string}) => r.status === "resolved").length ?? 0;
+    const initials = user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
     return (
       <ScrollView
