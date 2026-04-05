@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
-import { MapPin, Calendar, Building, Copy, Twitter, AlertTriangle } from "lucide-react";
+import { MapPin, Calendar, Building, Copy, Twitter, AlertTriangle, ArrowLeft } from "lucide-react";
 import { formatReportId } from "@/lib/utils";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ export default function ReportDetail() {
   const { data: report, isLoading } = useGetReport(reportId);
   const { user } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const updateStatusMutation = useUpdateReportStatus();
   
   const [isUpdating, setIsUpdating] = useState(false);
@@ -47,6 +48,12 @@ export default function ReportDetail() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      <button
+        onClick={() => window.history.length > 1 ? window.history.back() : setLocation("/feed")}
+        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back
+      </button>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <div className="flex items-center gap-3 mb-2">

@@ -252,7 +252,6 @@ export default function ProfileScreen() {
           )}
         </TouchableOpacity>
 
-        <Text style={styles.demoHint}>Demo: demo@notmyroad.in / Demo@1234</Text>
       </View>
 
       <View style={{ height: Platform.OS === "web" ? 34 : 100 }} />
@@ -390,11 +389,4 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   submitBtnText: { color: "#000", fontSize: 16, fontFamily: "Inter_700Bold" },
-  demoHint: {
-    color: Colors.textMuted,
-    fontSize: 12,
-    fontFamily: "Inter_400Regular",
-    textAlign: "center",
-    marginTop: 4,
-  },
 });

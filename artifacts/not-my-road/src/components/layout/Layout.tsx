@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
-import { Home, PlusCircle, LayoutDashboard, Globe, LogOut } from "lucide-react";
+import { Home, PlusCircle, LayoutDashboard, Globe, LogOut, UserCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "../ui/button";
 
@@ -80,7 +80,7 @@ export function Layout({ children }: { children: ReactNode }) {
       </main>
 
       {/* Bottom Navbar (Mobile) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-panel border-b-0 border-x-0 border-t border-white/5 h-20 px-6 flex items-center justify-between pb-safe">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-panel border-b-0 border-x-0 border-t border-white/5 h-20 px-4 flex items-center justify-between pb-safe">
         {navItems.map((item) => {
           const isActive = location === item.path;
           return (
@@ -96,6 +96,21 @@ export function Layout({ children }: { children: ReactNode }) {
             </Link>
           );
         })}
+        {user ? (
+          <button onClick={() => logout()} className="flex flex-col items-center gap-1 text-muted-foreground">
+            <div className="p-2 rounded-xl transition-all duration-300">
+              <LogOut className="w-6 h-6" />
+            </div>
+            <span className="text-[10px] font-medium">Sign Out</span>
+          </button>
+        ) : (
+          <Link href="/login" className="flex flex-col items-center gap-1 text-muted-foreground">
+            <div className="p-2 rounded-xl transition-all duration-300">
+              <UserCircle className="w-6 h-6" />
+            </div>
+            <span className="text-[10px] font-medium">Sign In</span>
+          </Link>
+        )}
       </nav>
     </div>
   );

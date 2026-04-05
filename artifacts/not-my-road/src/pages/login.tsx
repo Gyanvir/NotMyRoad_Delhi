@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Mail, Lock, AlertCircle } from "lucide-react";
+import { Mail, Lock, AlertCircle, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,6 +36,12 @@ export default function Login() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
+        <button
+          onClick={() => window.history.length > 1 ? window.history.back() : setLocation("/")}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back
+        </button>
         <Card className="border-primary/20">
           <CardHeader className="text-center pb-8">
             <div className="w-16 h-16 rounded-2xl bg-primary/20 border border-primary flex items-center justify-center mx-auto mb-6 neon-glow">
