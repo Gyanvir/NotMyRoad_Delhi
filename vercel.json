@@ -1,0 +1,15 @@
+{
+  "builds": [
+    {
+      "src": "artifacts/not-my-road/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/artifacts/not-my-road/index.html" }
+  ]
+}
