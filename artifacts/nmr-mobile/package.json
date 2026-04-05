@@ -5,6 +5,7 @@
   "main": "expo-router/entry",
   "scripts": {
     "dev": "EXPO_PACKAGER_PROXY_URL=https://$REPLIT_EXPO_DEV_DOMAIN EXPO_PUBLIC_DOMAIN=$REPLIT_DEV_DOMAIN EXPO_PUBLIC_REPL_ID=$REPL_ID REACT_NATIVE_PACKAGER_HOSTNAME=$REPLIT_DEV_DOMAIN pnpm exec expo start --localhost --port $PORT",
+    "start": "$env:EXPO_ROUTER_APP_ROOT='./app'; expo start",
     "build": "node scripts/build.js",
     "serve": "node server/serve.js",
     "typecheck": "tsc -p tsconfig.json --noEmit"
@@ -60,5 +61,10 @@
     "date-fns": "^3.6.0",
     "picker": "^0.1.4",
     "react-native-keyboard-controller": "1.18.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "lightningcss.win32-x64-msvc": "npm:lightningcss-win32-x64-msvc"
+    }
   }
 }
