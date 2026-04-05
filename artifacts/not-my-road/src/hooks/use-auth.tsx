@@ -2,6 +2,7 @@ import { createContext, useContext, useCallback, useState, ReactNode } from "rea
 import { useGetCurrentUser, useLogin, useLogout, useRegister, getGetCurrentUserQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import type { User, LoginInput, RegisterInput } from "@workspace/api-client-react";
+import { supabase } from "@/lib/supabase";
 
 interface AuthContextType {
   user: User | null;
@@ -34,7 +35,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (input: LoginInput) => {
       setIsTransitioning(true);
       try {
-        await loginMutation.mutateAsync({ data: input });
+        const res = await loginMutation.mutateAsync({ data: input });
+        if ((res as any).token) {
+          localStorage.setItem("nmr_auth_token", (res as any).token);
+        }
         await refetchUser();
       } finally {
         setIsTransitioning(false);
@@ -47,7 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (input: RegisterInput) => {
       setIsTransitioning(true);
       try {
-        await registerMutation.mutateAsync({ data: input });
+        const res = await registerMutation.mutateAsync({ data: input });
+        if ((res as any).token) {
+          localStorage.setItem("nmr_auth_token", (res as any).token);
+        }
         await refetchUser();
       } finally {
         setIsTransitioning(false);
@@ -59,7 +66,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     setIsTransitioning(true);
     try {
-      await logoutMutation.mutateAsync();
+      try {
+        await logoutMutation.mutateAsync();
+      } catch (err) {
+        // Ignore network errors on logout
+      }
+      localStorage.removeItem("nmr_auth_token");
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {}
+      
       await refetchUser();
     } finally {
       setIsTransitioning(false);

@@ -16,14 +16,14 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative rounded-3xl overflow-hidden min-h-[60vh] flex flex-col justify-center items-center text-center p-6 md:p-12 border border-white/10 shadow-2xl">
         <div className="absolute inset-0 z-0">
-          <img 
-            src={`${import.meta.env.BASE_URL}images/hero-bg.png`} 
-            alt="Dark urban street" 
+          <img
+            src={`${import.meta.env.BASE_URL}images/hero-bg.png`}
+            alt="Dark urban street"
             className="w-full h-full object-cover opacity-50 mix-blend-luminosity"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         </div>
-        
+
         <div className="relative z-10 max-w-3xl mx-auto space-y-8">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -31,16 +31,16 @@ export default function Home() {
             transition={{ duration: 0.5 }}
           >
             <Badge className="mb-6 bg-primary/20 text-primary text-sm px-4 py-2 border-primary/30">
-              Civic Tech for Delhi
+              FOR A SAFER CAPITAL
             </Badge>
             <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-              Fix Your City. <br/>
+              Fix Your City. <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary text-glow">
                 Report The Road.
               </span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              Not My Road connects citizens directly with MCD, PWD, and NDMC. 
+              Not My Road connects citizens directly with MCD, PWD, and NDMC.
               Snap a photo, grab GPS, and hold authorities accountable.
             </p>
           </motion.div>
@@ -76,7 +76,7 @@ export default function Home() {
             <p className="text-muted-foreground font-medium uppercase tracking-wider text-sm">Total Reports</p>
           </CardContent>
         </Card>
-        
+
         <Card className="bg-card/40 border-secondary/20">
           <CardContent className="p-8 flex flex-col items-center text-center space-y-2">
             <div className="p-4 rounded-2xl bg-secondary/10 text-secondary mb-2">
@@ -112,8 +112,8 @@ export default function Home() {
             <Link key={report.id} href={`/report/${report.id}`} className="block group">
               <Card className="h-full hover:border-primary/50 transition-colors duration-300">
                 <div className="h-48 overflow-hidden relative">
-                  <img 
-                    src={report.imageUrl} 
+                  <img
+                    src={report.imageUrl}
                     alt={report.issueType}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />

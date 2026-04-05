@@ -56,9 +56,11 @@ export function Layout({ children }: { children: ReactNode }) {
             {user ? (
               <div className="flex items-center gap-4 ml-4 pl-4 border-l border-border">
                 <span className="text-sm text-muted-foreground">Hi, {user.name}</span>
-                <Button variant="ghost" size="icon" onClick={() => logout()} title="Logout">
-                  <LogOut className="w-4 h-4" />
-                </Button>
+                <Link href="/profile">
+                  <Button variant="ghost" size="icon" title="Profile">
+                    <UserCircle className="w-5 h-5" />
+                  </Button>
+                </Link>
               </div>
             ) : (
               <div className="flex items-center gap-2 ml-4 pl-4 border-l border-border">
@@ -97,12 +99,12 @@ export function Layout({ children }: { children: ReactNode }) {
           );
         })}
         {user ? (
-          <button onClick={() => logout()} className="flex flex-col items-center gap-1 text-muted-foreground">
-            <div className="p-2 rounded-xl transition-all duration-300">
-              <LogOut className="w-6 h-6" />
+          <Link href="/profile" className={`flex flex-col items-center gap-1 ${location === '/profile' ? 'text-primary' : 'text-muted-foreground'}`}>
+            <div className={`p-2 rounded-xl transition-all duration-300 ${location === '/profile' ? 'bg-primary/20 text-primary' : ''}`}>
+               <UserCircle className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-medium">Sign Out</span>
-          </button>
+            <span className="text-[10px] font-medium">Profile</span>
+          </Link>
         ) : (
           <Link href="/login" className="flex flex-col items-center gap-1 text-muted-foreground">
             <div className="p-2 rounded-xl transition-all duration-300">

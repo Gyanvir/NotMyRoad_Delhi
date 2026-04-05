@@ -19,7 +19,9 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { Colors } from "@/constants/colors";
 
 // Configure API base URL for Expo (runs outside the web proxy)
-if (process.env.EXPO_PUBLIC_DOMAIN) {
+if (process.env.EXPO_PUBLIC_API_URL) {
+  setBaseUrl(process.env.EXPO_PUBLIC_API_URL);
+} else if (process.env.EXPO_PUBLIC_DOMAIN) {
   setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN}`);
 }
 

@@ -13,6 +13,7 @@ import Login from "@/pages/login";
 import Register from "@/pages/register";
 import ReportWizard from "@/pages/report-wizard";
 import Dashboard from "@/pages/dashboard";
+import Profile from "@/pages/profile";
 import ReportDetail from "@/pages/report-detail";
 import Feed from "@/pages/feed";
 import AuthCallback from "@/pages/auth-callback";
@@ -29,6 +30,7 @@ function Router() {
         <Route path="/register" component={Register} />
         <Route path="/report" component={ReportWizard} />
         <Route path="/dashboard" component={Dashboard} />
+        <Route path="/profile" component={Profile} />
         <Route path="/report/:id" component={ReportDetail} />
         <Route path="/feed" component={Feed} />
         <Route path="/auth/callback" component={AuthCallback} />
