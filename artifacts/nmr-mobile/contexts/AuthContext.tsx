@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  loginWithToken: (token: string, user: User) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -77,6 +78,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryClient.invalidateQueries();
   }, [registerMutation, persist, queryClient]);
 
+  const loginWithToken = useCallback(async (t: string, u: User) => {
+    await persist(t, u);
+    queryClient.invalidateQueries();
+  }, [persist, queryClient]);
+
   const logout = useCallback(async () => {
     try {
       await logoutMutation.mutateAsync();
@@ -91,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [logoutMutation, queryClient]);
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, loginWithToken }}>
       {children}
     </AuthContext.Provider>
   );

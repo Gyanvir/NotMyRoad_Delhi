@@ -13,15 +13,19 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import * as WebBrowser from "expo-web-browser";
 import { useAuth } from "@/contexts/AuthContext";
 import { Colors } from "@/constants/colors";
 import { useListReports } from "@workspace/api-client-react";
+import { supabase } from "@/lib/supabase";
+
+WebBrowser.maybeCompleteAuthSession();
 
 type Mode = "login" | "register";
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
-  const { user, login, register, logout, isLoading: authLoading } = useAuth();
+  const { user, login, register, logout, loginWithToken, isLoading: authLoading } = useAuth();
 
   const [mode, setMode] = useState<Mode>("login");
   const [name, setName] = useState("");
@@ -29,6 +33,7 @@ export default function ProfileScreen() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [filter, setFilter] = useState<string>('all');
   const params = { userId: user?.id?.toString(), status: filter === "all" ? undefined : (filter as any) };
 
@@ -69,6 +74,48 @@ export default function ProfileScreen() {
       setError(msg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    setError("");
+    try {
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { skipBrowserRedirect: true },
+      });
+      if (oauthError || !data.url) {
+        setError(oauthError?.message || "Could not start Google sign-in");
+        return;
+      }
+      const result = await WebBrowser.openAuthSessionAsync(data.url, "notmyroad://");
+      if (result.type !== "success") return;
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData.session) {
+        setError("Google sign-in incomplete. Please try again.");
+        return;
+      }
+      const baseUrl = process.env.EXPO_PUBLIC_API_URL || "";
+      const res = await fetch(`${baseUrl}/api/auth/oauth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ access_token: sessionData.session.access_token }),
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        setError(json.error || "Sign-in failed");
+        return;
+      }
+      const json = await res.json();
+      if (json.token && json.user) {
+        await loginWithToken(json.token, json.user);
+      }
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (e: any) {
+      setError(e.message || "Google sign-in failed");
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -252,6 +299,27 @@ export default function ProfileScreen() {
           )}
         </TouchableOpacity>
 
+        <View style={styles.dividerRow}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>or</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <TouchableOpacity
+          style={[styles.googleBtn, googleLoading && { opacity: 0.6 }]}
+          onPress={handleGoogleLogin}
+          disabled={googleLoading}
+        >
+          {googleLoading ? (
+            <ActivityIndicator color={Colors.text} size="small" />
+          ) : (
+            <>
+              <Text style={styles.googleIcon}>G</Text>
+              <Text style={styles.googleBtnText}>Continue with Google</Text>
+            </>
+          )}
+        </TouchableOpacity>
+
       </View>
 
       <View style={{ height: Platform.OS === "web" ? 34 : 100 }} />
@@ -389,4 +457,20 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   submitBtnText: { color: "#000", fontSize: 16, fontFamily: "Inter_700Bold" },
+  dividerRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
+  dividerText: { color: Colors.textMuted, fontSize: 12, fontFamily: "Inter_400Regular" },
+  googleBtn: {
+    backgroundColor: Colors.card,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 14,
+    paddingVertical: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+  },
+  googleIcon: { color: "#4285F4", fontSize: 18, fontFamily: "Inter_700Bold" },
+  googleBtnText: { color: Colors.text, fontSize: 15, fontFamily: "Inter_600SemiBold" },
 });

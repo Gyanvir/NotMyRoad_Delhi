@@ -15,6 +15,7 @@ import ReportWizard from "@/pages/report-wizard";
 import Dashboard from "@/pages/dashboard";
 import ReportDetail from "@/pages/report-detail";
 import Feed from "@/pages/feed";
+import AuthCallback from "@/pages/auth-callback";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ function Router() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/report/:id" component={ReportDetail} />
         <Route path="/feed" component={Feed} />
+        <Route path="/auth/callback" component={AuthCallback} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

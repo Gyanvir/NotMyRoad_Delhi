@@ -3,6 +3,14 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { createClient } from "@supabase/supabase-js";
+
+function getSupabaseAdmin() {
+  const url = process.env["SUPABASE_URL"];
+  const key = process.env["SUPABASE_ANON_KEY"];
+  if (!url || !key) throw new Error("Supabase env vars missing");
+  return createClient(url, key);
+}
 
 declare module "express-session" {
   interface SessionData {
@@ -108,6 +116,43 @@ router.post("/auth/logout", (req, res) => {
   req.session?.destroy(() => {
     res.json({ message: "Logged out successfully" });
   });
+});
+
+router.post("/auth/oauth", async (req, res) => {
+  try {
+    const { access_token } = req.body;
+    if (!access_token) {
+      res.status(400).json({ error: "access_token is required" });
+      return;
+    }
+    const supabase = getSupabaseAdmin();
+    const { data: { user: supaUser }, error } = await supabase.auth.getUser(access_token);
+    if (error || !supaUser) {
+      res.status(401).json({ error: "Invalid OAuth token" });
+      return;
+    }
+    const email = supaUser.email;
+    const name = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || email?.split("@")[0] || "User";
+    if (!email) {
+      res.status(400).json({ error: "No email from OAuth provider" });
+      return;
+    }
+    let [user] = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
+    if (!user) {
+      const placeholder = await bcrypt.hash(crypto.randomUUID(), 10);
+      [user] = await db.insert(usersTable).values({ email, passwordHash: placeholder, name }).returning();
+    }
+    req.session!.userId = user.id;
+    const token = signToken(user.id);
+    res.json({
+      user: { id: user.id, email: user.email, name: user.name, createdAt: user.createdAt },
+      message: "OAuth login successful",
+      token,
+    });
+  } catch (err) {
+    req.log.error(err, "Error with OAuth login");
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 export default router;
