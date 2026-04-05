@@ -1,0 +1,1 @@
+# TODO: Fix LightningCSS bundling error\n\n✅ Clean corrupted lightningcss node_modules cache\n✅ Reinstall dependencies with pnpm\n⏳ Test expo start\n\n**Next:** Run `pnpm exec expo start` in the mobile directory.

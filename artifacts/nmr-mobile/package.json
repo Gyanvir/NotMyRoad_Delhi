@@ -10,6 +10,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
+    "lightningcss.win32-x64-msvc": "^1.0.0",
     "@babel/core": "^7.25.2",
     "@expo-google-fonts/inter": "^0.4.0",
     "@expo/cli": "54.0.23",
@@ -44,7 +45,7 @@
     "react-dom": "catalog:",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
-    "react-native-keyboard-controller": "^1.20.6",
+    "react-native-keyboard-controller": "1.18.5",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
@@ -57,6 +58,7 @@
   },
   "dependencies": {
     "date-fns": "^3.6.0",
-    "picker": "^0.1.4"
+    "picker": "^0.1.4",
+    "react-native-keyboard-controller": "1.18.5"
   }
 }
