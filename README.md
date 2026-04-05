@@ -9,6 +9,17 @@
 
 ---
 
+## 🚀 Live Deployment
+
+- **Frontend (Web):** [https://notmyroad.vercel.app](https://notmyroad.vercel.app)
+- **Backend (API):** [https://notmyroad-delhi.onrender.com](https://notmyroad-delhi.onrender.com)
+
+## ⚡ Built with Vibecoding
+
+This project was forged through modern *vibecoding*—an AI-collaborative engineering flow leveraging **Replit** and **Antigravity**. By seamlessly combining rapid AI-generated scaffolding with heavy manual refinement, reverse proxy debugging, and precise technical architecture by me, this app went from idea to full-stack production at breakneck speed.
+
+---
+
 ## What is NotMyRoad?
 
 NotMyRoad is an open, citizen-facing web platform that lets anyone in Delhi photograph a road issue, log it against the responsible authority (MCD, PWD, NHAI, DDA), track its resolution publicly, and generate a tweet draft to amplify pressure. Every report is visible to the community — creating a living accountability map of Delhi's roads.
