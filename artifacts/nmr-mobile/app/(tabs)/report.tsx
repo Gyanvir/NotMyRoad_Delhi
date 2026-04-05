@@ -16,11 +16,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import * as Location from "expo-location";
 import { useCreateReport } from "@workspace/api-client-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Colors } from "@/constants/colors";
-import * as ImagePicker from 'expo-image-picker';
-
+import * as ImagePicker from "expo-image-picker";
 
 const ISSUE_TYPES = [
   { key: "pothole", label: "Pothole" },
@@ -47,6 +47,13 @@ const AUTHORITIES = [
 
 const STEPS = ["Details", "Location", "Authority", "Review"];
 
+const DELHI_BOUNDS = { north: 28.88, south: 28.40, east: 77.35, west: 76.84 };
+
+function isWithinDelhi(lat: number, lng: number) {
+  return lat >= DELHI_BOUNDS.south && lat <= DELHI_BOUNDS.north &&
+    lng >= DELHI_BOUNDS.west && lng <= DELHI_BOUNDS.east;
+}
+
 export default function ReportScreen() {
   const createMutation = useCreateReport();
   const insets = useSafeAreaInsets();
@@ -58,29 +65,92 @@ export default function ReportScreen() {
   const [area, setArea] = useState("");
   const [authority, setAuthority] = useState("");
   const [description, setDescription] = useState("");
-  // const [image, setImage] = useState
   const [image, setImage] = useState<any>(null);
-  // const [imageUrl, setImageUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationCaptured, setLocationCaptured] = useState(false);
+  const [editingCoords, setEditingCoords] = useState(false);
+  const [latInput, setLatInput] = useState("");
+  const [lngInput, setLngInput] = useState("");
+
   const topPad = Platform.OS === "web" ? 67 : insets.top;
+
   const pickImage = async () => {
-  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert("Permission required", "Please allow gallery access to upload a photo.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+    });
+    if (!result.canceled) {
+      setImage(result.assets[0]);
+    }
+  };
 
-  if (!permission.granted) {
-    Alert.alert('Permission required', 'Allow gallery access');
-    return;
-  }
+  const handleGetLocation = async () => {
+    setIsLocating(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission denied",
+          "Location permission is required to tag your report. Please enable it in settings.",
+          [{ text: "OK" }]
+        );
+        setIsLocating(false);
+        return;
+      }
+      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      if (!isWithinDelhi(lat, lng)) {
+        Alert.alert(
+          "Outside Delhi",
+          "Your current location is outside Delhi. NotMyRoad only accepts reports from within Delhi — NCR is not under our jurisdiction. You can enter coordinates manually if you are in Delhi.",
+          [{ text: "OK" }]
+        );
+        setIsLocating(false);
+        return;
+      }
+      setLatitude(lat);
+      setLongitude(lng);
+      setLatInput(lat.toFixed(6));
+      setLngInput(lng.toFixed(6));
+      setLocationCaptured(true);
+      setEditingCoords(false);
+    } catch {
+      Alert.alert("Error", "Could not get your location. Please try again or enter coordinates manually.");
+    } finally {
+      setIsLocating(false);
+    }
+  };
 
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    quality: 0.7,
-  });
+  const handleManualCoords = () => {
+    const lat = parseFloat(latInput);
+    const lng = parseFloat(lngInput);
+    if (isNaN(lat) || isNaN(lng)) {
+      Alert.alert("Invalid coordinates", "Please enter valid numeric values.");
+      return;
+    }
+    if (!isWithinDelhi(lat, lng)) {
+      Alert.alert(
+        "Outside Delhi",
+        "This location is outside Delhi. NotMyRoad only covers issues within Delhi — NCR is not under our jurisdiction."
+      );
+      return;
+    }
+    setLatitude(lat);
+    setLongitude(lng);
+    setLocationCaptured(true);
+    setEditingCoords(false);
+  };
 
-  if (!result.canceled) {
-    setImage(result.assets[0]);
-  }
-};
   if (!user) {
     return (
       <View style={[styles.container, styles.center, { paddingTop: topPad }]}>
@@ -98,6 +168,16 @@ export default function ReportScreen() {
   }
 
   const handleNext = () => {
+    if (step === 1) {
+      if (!image) {
+        Alert.alert("Photo required", "Please upload a photo of the road issue.");
+        return;
+      }
+      if (!locationCaptured) {
+        Alert.alert("Location required", "Please capture your GPS location.");
+        return;
+      }
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setStep((s) => Math.min(s + 1, 3));
   };
@@ -112,6 +192,14 @@ export default function ReportScreen() {
       Alert.alert("Missing info", "Please enter the area/location");
       return;
     }
+    if (!image) {
+      Alert.alert("Photo required", "Please upload a photo of the road issue.");
+      return;
+    }
+    if (!locationCaptured || latitude === null || longitude === null) {
+      Alert.alert("Location required", "Please capture your GPS location.");
+      return;
+    }
     setSubmitting(true);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
@@ -124,15 +212,14 @@ export default function ReportScreen() {
           authority: authority as any,
           description,
           area,
-          imageUrl: image ? image.uri : undefined,
-          // imageUrl: imageUrl || "https://thepatriot.in/reports/roads-in-disrepair-citizens-in-despair-20288",
-          latitude: 28.6139,
-          longitude: 77.209,
+          imageUrl: image.uri,
+          latitude,
+          longitude,
         },
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace(`/report/${res.id}` as any);
-    } catch (e) {
+    } catch {
       Alert.alert("Error", "Failed to submit report. Please try again.");
     } finally {
       setSubmitting(false);
@@ -141,7 +228,7 @@ export default function ReportScreen() {
 
   const canNext =
     (step === 0 && issueType && roadType) ||
-    (step === 1 && area.trim().length > 0) ||
+    (step === 1 && area.trim().length > 0 && !!image && locationCaptured) ||
     (step === 2 && authority);
 
   return (
@@ -230,29 +317,114 @@ export default function ReportScreen() {
             />
             <Text style={styles.hint}>Enter the area, landmark, or address</Text>
 
-            <View style={styles.locationCard}>
-              <Feather name="map-pin" size={20} color={Colors.primary} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.locationTitle}>GPS Location</Text>
-                <Text style={styles.locationSub}>28.6139° N, 77.2090° E (Delhi center)</Text>
-              </View>
-              <View style={styles.locationBadge}>
-                <Text style={styles.locationBadgeText}>Auto</Text>
-              </View>
-            </View>
+            {/* GPS Section */}
+            <Text style={[styles.sectionTitle, { marginTop: 8 }]}>
+              GPS Location <Text style={{ color: "#f87171" }}>*</Text>
+            </Text>
 
-            <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Add a photo</Text>
+            {!locationCaptured && !editingCoords && (
+              <View style={styles.locationEmptyCard}>
+                <Feather name="map-pin" size={24} color={Colors.primary} />
+                <Text style={styles.locationEmptyText}>Tap to get your current GPS location</Text>
+                <Text style={styles.hint}>Only Delhi locations are accepted</Text>
+                <View style={{ flexDirection: "row", gap: 10, marginTop: 8 }}>
+                  <TouchableOpacity
+                    style={[styles.gpsBtn, isLocating && { opacity: 0.5 }]}
+                    onPress={handleGetLocation}
+                    disabled={isLocating}
+                  >
+                    {isLocating ? (
+                      <ActivityIndicator size="small" color="#000" />
+                    ) : (
+                      <Feather name="crosshair" size={16} color="#000" />
+                    )}
+                    <Text style={styles.gpsBtnText}>{isLocating ? "Locating..." : "Get GPS"}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.gpsBtnOutline}
+                    onPress={() => { setEditingCoords(true); setLatInput(""); setLngInput(""); }}
+                  >
+                    <Text style={styles.gpsBtnOutlineText}>Enter manually</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {editingCoords && !locationCaptured && (
+              <View style={styles.locationCard}>
+                <Text style={styles.locationTitle}>Enter coordinates (Delhi only)</Text>
+                <Text style={[styles.hint, { marginTop: 4 }]}>Latitude: 28.40–28.88 · Longitude: 76.84–77.35</Text>
+                <View style={{ flexDirection: "row", gap: 10, marginTop: 8 }}>
+                  <TextInput
+                    style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                    placeholder="Lat (e.g. 28.6139)"
+                    placeholderTextColor={Colors.textMuted}
+                    value={latInput}
+                    onChangeText={setLatInput}
+                    keyboardType="decimal-pad"
+                  />
+                  <TextInput
+                    style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                    placeholder="Lng (e.g. 77.2090)"
+                    placeholderTextColor={Colors.textMuted}
+                    value={lngInput}
+                    onChangeText={setLngInput}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+                <View style={{ flexDirection: "row", gap: 10, marginTop: 12 }}>
+                  <TouchableOpacity style={styles.gpsBtn} onPress={handleManualCoords}>
+                    <Text style={styles.gpsBtnText}>Confirm</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.gpsBtnOutline, isLocating && { opacity: 0.5 }]}
+                    onPress={handleGetLocation}
+                    disabled={isLocating}
+                  >
+                    <Feather name="crosshair" size={14} color={Colors.primary} />
+                    <Text style={styles.gpsBtnOutlineText}>{isLocating ? "Locating..." : "Use GPS"}</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {locationCaptured && latitude !== null && longitude !== null && (
+              <View style={[styles.locationCard, { borderColor: Colors.primary + "60" }]}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                    <Feather name="map-pin" size={16} color={Colors.primary} />
+                    <Text style={styles.locationTitle}>Location captured</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => { setEditingCoords(true); setLocationCaptured(false); setLatInput(latitude.toFixed(6)); setLngInput(longitude.toFixed(6)); }}>
+                    <Text style={{ color: Colors.primary, fontSize: 13, fontFamily: "Inter_500Medium" }}>Edit</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={[styles.locationSub, { marginTop: 8, fontFamily: "Inter_500Medium", letterSpacing: 0.3 }]}>
+                  {latitude.toFixed(6)}° N, {longitude.toFixed(6)}° E
+                </Text>
+              </View>
+            )}
+
+            {/* Photo Section */}
+            <Text style={[styles.sectionTitle, { marginTop: 20 }]}>
+              Photo Evidence <Text style={{ color: "#f87171" }}>*</Text>
+            </Text>
+            <Text style={[styles.hint, { marginBottom: 8 }]}>Upload a photo of the road issue (required)</Text>
             <Pressable
               onPress={pickImage}
               style={{
-                backgroundColor: '#00FF7F',
+                backgroundColor: Colors.primary,
                 padding: 14,
                 borderRadius: 12,
-                alignItems: 'center',
+                alignItems: "center",
                 marginBottom: 16,
+                flexDirection: "row",
+                justifyContent: "center",
+                gap: 8,
               }}
             >
-              <Text style={{ color: '#000', fontWeight: 'bold' }}>
+              <Feather name="camera" size={18} color="#000" />
+              <Text style={{ color: "#000", fontWeight: "bold" }}>
                 {image ? "Change Photo" : "Upload Photo"}
               </Text>
             </Pressable>
@@ -260,7 +432,7 @@ export default function ReportScreen() {
               <Image
                 source={{ uri: image.uri }}
                 style={{
-                  width: '100%',
+                  width: "100%",
                   height: 200,
                   borderRadius: 12,
                   marginBottom: 16,
@@ -268,9 +440,9 @@ export default function ReportScreen() {
               />
             )}
           </View>
+        )}
 
-        )}{/* Step 2: Authority */}
-
+        {/* Step 2: Authority */}
         {step === 2 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Responsible authority</Text>
@@ -312,6 +484,7 @@ export default function ReportScreen() {
               { label: "Area", value: area },
               { label: "Authority", value: authority },
               { label: "Description", value: description || "—" },
+              { label: "Coordinates", value: latitude !== null ? `${latitude.toFixed(4)}°N, ${longitude?.toFixed(4)}°E` : "—" },
             ].map((row) => (
               <View key={row.label} style={styles.reviewRow}>
                 <Text style={styles.reviewLabel}>{row.label}</Text>
@@ -472,27 +645,50 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginBottom: 8,
   },
-  hint: { color: Colors.textMuted, fontSize: 12, fontFamily: "Inter_400Regular", marginBottom: 12 },
-  locationCard: {
-    flexDirection: "row",
+  hint: { color: Colors.textMuted, fontSize: 12, fontFamily: "Inter_400Regular", marginBottom: 4 },
+  locationEmptyCard: {
     alignItems: "center",
-    gap: 12,
+    gap: 8,
     backgroundColor: Colors.card,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.primary + "40",
+    borderColor: Colors.border,
+    borderStyle: "dashed",
+    padding: 20,
+    marginBottom: 8,
+  },
+  locationEmptyText: { color: Colors.text, fontSize: 14, fontFamily: "Inter_500Medium", textAlign: "center" },
+  gpsBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  gpsBtnText: { color: "#000", fontSize: 14, fontFamily: "Inter_600SemiBold" },
+  gpsBtnOutline: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  gpsBtnOutlineText: { color: Colors.primary, fontSize: 14, fontFamily: "Inter_500Medium" },
+  locationCard: {
+    backgroundColor: Colors.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.cardBorder,
     padding: 14,
-    marginTop: 4,
+    marginBottom: 8,
   },
   locationTitle: { color: Colors.text, fontSize: 14, fontFamily: "Inter_600SemiBold" },
   locationSub: { color: Colors.textMuted, fontSize: 12, fontFamily: "Inter_400Regular", marginTop: 2 },
-  locationBadge: {
-    backgroundColor: Colors.primaryDim,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  locationBadgeText: { color: Colors.primary, fontSize: 11, fontFamily: "Inter_600SemiBold" },
   imagePreview: { width: "100%", height: 160, borderRadius: 12, marginTop: 8, backgroundColor: Colors.border },
   authorityCard: {
     flexDirection: "row",

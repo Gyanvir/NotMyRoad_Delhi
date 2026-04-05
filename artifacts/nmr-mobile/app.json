@@ -31,7 +31,14 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "NotMyRoad uses your location to tag road issue reports within Delhi.",
+          "locationWhenInUsePermission": "NotMyRoad uses your location to tag road issue reports within Delhi."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
