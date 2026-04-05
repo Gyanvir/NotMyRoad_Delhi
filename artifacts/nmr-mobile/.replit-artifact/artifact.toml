@@ -1,27 +1,28 @@
 kind = "mobile"
-previewPath = "/mobile/"
-title = "Not My Road – Mobile"
-version = "1.0.0"
-id = "artifacts/nmr-mobile"
-router = "expo-domain"
+  previewPath = "/mobile/"
+  title = "Not My Road – Mobile"
+  version = "1.0.0"
+  id = "artifacts/nmr-mobile"
+  router = "expo-domain"
 
-[[integratedSkills]]
-name = "expo"
-version = "1.0.0"
+  [[integratedSkills]]
+  name = "expo"
+  version = "1.0.0"
 
-[[services]]
-ensurePreviewReachable = "/status"
-name = "expo"
-paths = [ "/mobile/" ]
-localPort = 19281
+  [[services]]
+  ensurePreviewReachable = "/status"
+  name = "expo"
+  paths = [ "/mobile/" ]
+  localPort = 19281
 
-[services.development]
-run = "pnpm --filter @workspace/nmr-mobile run dev"
+  [services.development]
+  run = "cd /home/runner/workspace/artifacts/nmr-mobile && EXPO_PACKAGER_PROXY_URL=https://$REPLIT_EXPO_DEV_DOMAIN EXPO_PUBLIC_DOMAIN=$REPLIT_DEV_DOMAIN EXPO_PUBLIC_REPL_ID=$REPL_ID REACT_NATIVE_PACKAGER_HOSTNAME=$REPLIT_DEV_DOMAIN node_modules/.bin/expo start --localhost --port $PORT"
 
-[services.production]
-build = [ "pnpm", "--filter", "@workspace/nmr-mobile", "run", "build" ]
-run = [ "pnpm", "--filter", "@workspace/nmr-mobile", "run", "serve" ]
+  [services.production]
+  build = [ "pnpm", "--filter", "@workspace/nmr-mobile", "run", "build" ]
+  run = [ "pnpm", "--filter", "@workspace/nmr-mobile", "run", "serve" ]
 
-[services.env]
-PORT = "19281"
-BASE_PATH = "/mobile/"
+  [services.env]
+  PORT = "19281"
+  BASE_PATH = "/mobile/"
+  

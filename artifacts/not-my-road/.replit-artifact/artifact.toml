@@ -1,31 +1,32 @@
 kind = "web"
-previewPath = "/"
-title = "Not My Road"
-version = "1.0.0"
-id = "artifacts/not-my-road"
-router = "path"
+  previewPath = "/"
+  title = "Not My Road"
+  version = "1.0.0"
+  id = "artifacts/not-my-road"
+  router = "path"
 
-[[integratedSkills]]
-name = "react-vite"
-version = "1.0.0"
+  [[integratedSkills]]
+  name = "react-vite"
+  version = "1.0.0"
 
-[[services]]
-name = "web"
-paths = [ "/" ]
-localPort = 19980
+  [[services]]
+  name = "web"
+  paths = [ "/" ]
+  localPort = 19980
 
-[services.development]
-run = "pnpm --filter @workspace/not-my-road run dev"
+  [services.development]
+  run = "cd /home/runner/workspace/artifacts/not-my-road && node_modules/.bin/vite --port 19980 --host 0.0.0.0"
 
-[services.production]
-build = [ "pnpm", "--filter", "@workspace/not-my-road", "run", "build" ]
-publicDir = "artifacts/not-my-road/dist/public"
-serve = "static"
+  [services.production]
+  build = [ "pnpm", "--filter", "@workspace/not-my-road", "run", "build" ]
+  publicDir = "artifacts/not-my-road/dist/public"
+  serve = "static"
 
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
+  [[services.production.rewrites]]
+  from = "/*"
+  to = "/index.html"
 
-[services.env]
-PORT = "19980"
-BASE_PATH = "/"
+  [services.env]
+  PORT = "19980"
+  BASE_PATH = "/"
+  
