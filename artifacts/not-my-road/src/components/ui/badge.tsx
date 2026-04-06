@@ -9,7 +9,7 @@ function Badge({ className, variant = "default", ...props }: BadgeProps) {
   const variants = {
     default: "bg-primary/10 text-primary border border-primary/20",
     pending: "bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-[0_0_10px_rgba(245,158,11,0.2)]",
-    in_progress: "bg-secondary/10 text-secondary border border-secondary/20 shadow-[0_0_10px_rgba(0,212,255,0.2)]",
+    in_progress: "bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-[0_0_10px_rgba(59,130,246,0.2)]",
     resolved: "bg-primary/10 text-primary border border-primary/20 shadow-[0_0_10px_rgba(0,255,135,0.2)]",
     outline: "text-foreground border border-border",
   };

@@ -12,15 +12,19 @@ export default function Feed() {
   const [statusFilter, setStatusFilter] = useState<"all" | ListReportsStatus>("all");
   const [search, setSearch] = useState("");
 
-  const { data: reports, isLoading } = useListReports({ 
-    status: statusFilter === "all" ? undefined : statusFilter
-  });
+  const { data: reports, isLoading } = useListReports();
 
-  const filteredReports = reports?.filter(r => 
-    r.area.toLowerCase().includes(search.toLowerCase()) || 
-    r.issueType.toLowerCase().includes(search.toLowerCase()) ||
-    r.authority.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredReports = reports?.filter(r => {
+    const searchMatch = !search || 
+      r.area.toLowerCase().includes(search.toLowerCase()) || 
+      r.issueType.toLowerCase().includes(search.toLowerCase()) ||
+      r.authority.toLowerCase().includes(search.toLowerCase());
+      
+    const rStatus = r.status.toLowerCase().replace(' ', '_');
+    const statusMatch = statusFilter === "all" || rStatus === statusFilter;
+    
+    return searchMatch && statusMatch;
+  });
 
   return (
     <div className="space-y-8 max-w-5xl mx-auto">
@@ -84,7 +88,7 @@ export default function Feed() {
                 <CardContent className="p-5 flex flex-col justify-between w-full relative z-10">
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                      <Badge variant={report.status} className="scale-90 origin-top-left">
+                      <Badge variant={report.status.toLowerCase().replace(' ', '_') as any} className="scale-90 origin-top-left">
                         {report.status.replace('_', ' ').toUpperCase()}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
