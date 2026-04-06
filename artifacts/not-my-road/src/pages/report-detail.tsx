@@ -56,7 +56,8 @@ export default function ReportDetail() {
     }
   };
 
-  const isAdmin = true; // Temporary admin mock so you can use the status buttons
+  // Only allow your master admin account to see the status update buttons
+  const isAdmin = user?.email === 'gyanvirsingh09@gmail.com'; 
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
