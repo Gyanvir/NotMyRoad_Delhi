@@ -10,6 +10,18 @@ import { formatReportId } from "@/lib/utils";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
+const getStepSubtext = (stepId: string, customNote?: string) => {
+  // If there's a custom note that isn't the generic fallback, use it
+  if (customNote && customNote !== "Report submitted") return customNote; 
+  
+  switch(stepId) {
+    case 'pending': return 'You submitted the complaint to NotMyRoad.';
+    case 'in_progress': return 'Complaint officially forwarded to the relevant government authority.';
+    case 'resolved': return 'The authority has successfully resolved your reported issue.';
+    default: return customNote || '';
+  }
+};
+
 export default function ReportDetail() {
   const { id } = useParams();
   const reportId = Number(id);
@@ -44,7 +56,7 @@ export default function ReportDetail() {
     }
   };
 
-  const isAdmin = user?.email.includes('admin'); // Very basic admin check mock
+  const isAdmin = true; // Temporary admin mock so you can use the status buttons
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -175,12 +187,14 @@ export default function ReportDetail() {
                   return (
                   <div key={idx} className={`relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group ${isCompleted ? 'is-active' : 'opacity-40 grayscale'}`}>
                     <div className={`flex items-center justify-center w-6 h-6 rounded-full border-2 border-background shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 ${isCompleted ? 'bg-primary neon-glow' : 'bg-muted'}`} />
-                    <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] bg-background/50 border border-border p-3 rounded-xl shadow-lg">
-                      <div className="flex items-center justify-between mb-1">
+                    <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] md:min-w-[180px] bg-background/50 border border-border p-3 rounded-xl shadow-lg">
+                      <div className="flex items-center justify-between mb-1 gap-2">
                         <span className={`font-bold capitalize text-sm ${isCompleted ? 'text-primary' : 'text-muted-foreground'}`}>{step.label}</span>
-                        {timestamp && <time className="text-[10px] text-muted-foreground font-mono">{format(new Date(timestamp), "MMM d, HH:mm")}</time>}
+                        {timestamp && <time className="text-[10px] text-muted-foreground font-mono shrink-0">{format(new Date(timestamp), "MMM d, HH:mm")}</time>}
                       </div>
-                      {event?.note && <div className="text-xs text-foreground/80">{event.note}</div>}
+                      <div className="text-xs text-foreground/80 leading-relaxed mt-1">
+                        {getStepSubtext(step.id, event?.note)}
+                      </div>
                     </div>
                   </div>
                 )})}

@@ -119,7 +119,7 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-card to-transparent" />
                   <div className="absolute bottom-4 left-4">
-                    <Badge variant={report.status as any}>{report.status.replace('_', ' ').toUpperCase()}</Badge>
+                    <Badge variant={report.status.toLowerCase().replace(/[- ]/g, '_') as any}>{report.status.replace('_', ' ').toUpperCase()}</Badge>
                   </div>
                 </div>
                 <CardContent className="p-5 space-y-2">
