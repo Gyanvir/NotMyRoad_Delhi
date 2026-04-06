@@ -10,6 +10,16 @@ import { formatReportId } from "@/lib/utils";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
+const getRoadmapLabel = (status: string) => {
+  switch (status) {
+    case 'pending': return 'Complaint Logged';
+    case 'in_progress': return 'Filed at Portal';
+    case 'resolved': return 'Resolved';
+    default: return status.replace('_', ' ');
+  }
+};
+
+
 export default function ReportDetail() {
   const { id } = useParams();
   const reportId = Number(id);
@@ -155,7 +165,7 @@ export default function ReportDetail() {
                     <div className="flex items-center justify-center w-6 h-6 rounded-full border-2 border-background bg-primary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 neon-glow" />
                     <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] bg-background/50 border border-border p-3 rounded-xl shadow-lg">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-bold text-primary capitalize text-sm">{event.status.replace('_', ' ')}</span>
+                        <span className="font-bold text-primary capitalize text-sm">{getRoadmapLabel(event.status)}</span>
                         <time className="text-[10px] text-muted-foreground font-mono">{format(new Date(event.timestamp), "MMM d, HH:mm")}</time>
                       </div>
                       {event.note && <div className="text-xs text-foreground/80">{event.note}</div>}
