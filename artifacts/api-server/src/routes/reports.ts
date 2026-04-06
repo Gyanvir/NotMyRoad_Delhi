@@ -150,7 +150,7 @@ router.patch("/reports/:id", async (req, res) => {
       .returning();
 
     res.json(formatReport(updated));
-  } catch (err) {
+  } catch (err: any) {
     req.log.error(err, "Error updating report");
     res.status(500).json({ error: "Internal server error" });
   }

@@ -27,8 +27,8 @@ export function Layout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 w-full glass-panel border-t-0 border-x-0 border-b border-white/5 px-4 h-16 flex items-center justify-between">
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-            <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary flex items-center justify-center group-hover:neon-glow transition-all">
-              <span className="text-primary font-display font-bold text-lg leading-none">NR</span>
+            <div className="w-11 h-8 rounded-lg bg-primary/20 border border-primary flex items-center justify-center group-hover:neon-glow transition-all">
+              <span className="text-primary font-display font-bold text-lg leading-none">NMR</span>
             </div>
             <span className="font-display font-bold text-xl tracking-tight hidden sm:block">
               NotMy<span className="text-primary">Road</span>
@@ -52,7 +52,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 )}
               </Link>
             ))}
-            
+
             {user ? (
               <div className="flex items-center gap-4 ml-4 pl-4 border-l border-border">
                 <span className="text-sm text-muted-foreground">Hi, {user.name}</span>
@@ -101,7 +101,7 @@ export function Layout({ children }: { children: ReactNode }) {
         {user ? (
           <Link href="/profile" className={`flex flex-col items-center gap-1 ${location === '/profile' ? 'text-primary' : 'text-muted-foreground'}`}>
             <div className={`p-2 rounded-xl transition-all duration-300 ${location === '/profile' ? 'bg-primary/20 text-primary' : ''}`}>
-               <UserCircle className="w-6 h-6" />
+              <UserCircle className="w-6 h-6" />
             </div>
             <span className="text-[10px] font-medium">Profile</span>
           </Link>
