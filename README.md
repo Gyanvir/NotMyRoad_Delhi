@@ -33,9 +33,9 @@ NotMyRoad is an open, citizen-facing web platform that lets anyone in Delhi phot
 
 ### Web App (Active)
 
-| Home | Community Feed | Profile / Dashboard |
+| Home | Community Feed | Reporting Page |
 |------|---------------|---------------|
-| ![Web Home](screenshots/web-home.jpg) | ![Web Feed](screenshots/web-feed.jpg) | ![Web Profile](screenshots/web-report.jpg) |
+| ![Web Home](screenshots/web-home.png) | ![Web Feed](screenshots/web-feed.png) | ![Web Report](screenshots/web-report.png) |
 
 ### Mobile App (Under Development)
 
