@@ -27,7 +27,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 w-full glass-panel border-t-0 border-x-0 border-b border-white/5 px-4 h-16 flex items-center justify-between">
         <div className="max-w-7xl mx-auto w-full flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group cursor-pointer">
-            <div className="w-11 h-8 rounded-lg bg-primary/20 border border-primary flex items-center justify-center group-hover:neon-glow transition-all">
+            <div className="w-12 h-8 rounded-lg bg-primary/20 border border-primary flex items-center justify-center group-hover:neon-glow transition-all">
               <span className="text-primary font-display font-bold text-lg leading-none">NMR</span>
             </div>
             <span className="font-display font-bold text-xl tracking-tight hidden sm:block">
