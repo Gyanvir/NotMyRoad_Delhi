@@ -155,9 +155,22 @@ export default function ReportDetail() {
                   { id: 'in_progress', label: 'Filed at Portal' },
                   { id: 'resolved', label: 'Resolved' }
                 ].map((step, idx) => {
-                  const event = report.timeline.find(e => e.status.toLowerCase().replace(' ', '_') === step.id) || 
-                                (step.id === 'pending' && report.timeline.length > 0 ? report.timeline[0] : null);
-                  const isCompleted = !!event;
+                  const normalizedMainStatus = report.status.toLowerCase().replace(/[- ]/g, '_');
+                  const isPending = true;
+                  const isFiled = normalizedMainStatus === 'in_progress' || normalizedMainStatus === 'resolved';
+                  const isResolved = normalizedMainStatus === 'resolved';
+                  
+                  const isCompleted = 
+                    (step.id === 'pending') ||
+                    (step.id === 'in_progress' && isFiled) ||
+                    (step.id === 'resolved' && isResolved);
+
+                  const event = report.timeline.find(e => e.status.toLowerCase().replace(/[- ]/g, '_') === step.id);
+                  let timestamp = event?.timestamp;
+                  if (!timestamp && isCompleted) {
+                    if (step.id === 'pending') timestamp = report.createdAt;
+                    else timestamp = report.updatedAt || report.createdAt;
+                  }
 
                   return (
                   <div key={idx} className={`relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group ${isCompleted ? 'is-active' : 'opacity-40 grayscale'}`}>
@@ -165,7 +178,7 @@ export default function ReportDetail() {
                     <div className="w-[calc(100%-2rem)] md:w-[calc(50%-1.5rem)] bg-background/50 border border-border p-3 rounded-xl shadow-lg">
                       <div className="flex items-center justify-between mb-1">
                         <span className={`font-bold capitalize text-sm ${isCompleted ? 'text-primary' : 'text-muted-foreground'}`}>{step.label}</span>
-                        {event && <time className="text-[10px] text-muted-foreground font-mono">{format(new Date(event.timestamp), "MMM d, HH:mm")}</time>}
+                        {timestamp && <time className="text-[10px] text-muted-foreground font-mono">{format(new Date(timestamp), "MMM d, HH:mm")}</time>}
                       </div>
                       {event?.note && <div className="text-xs text-foreground/80">{event.note}</div>}
                     </div>

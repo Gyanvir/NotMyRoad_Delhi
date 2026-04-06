@@ -14,10 +14,14 @@ export default function Dashboard() {
   
   // We pass userId to filter for only this user's reports
   const { data: reports, isLoading: reportsLoading } = useListReports({ 
-    userId: user?.id?.toString(),
-    status: filter === "all" ? undefined : filter
+    userId: user?.id?.toString()
   }, {
-    query: { enabled: !!user }
+    query: { enabled: !!user } as any
+  });
+
+  const filteredReports = reports?.filter(r => {
+    const rStatus = r.status.toLowerCase().replace(/[- ]/g, '_');
+    return filter === "all" || rStatus === filter;
   });
 
   const isLoading = reportsLoading;
@@ -98,7 +102,7 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {reports?.map(report => (
+          {filteredReports?.map(report => (
             <Link key={report.id} href={`/report/${report.id}`} className="block group">
               <Card className="h-full hover:border-primary/50 transition-colors duration-300">
                 <div className="h-40 overflow-hidden relative border-b border-white/5">
@@ -108,7 +112,7 @@ export default function Dashboard() {
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
                   />
                   <div className="absolute top-3 right-3">
-                    <Badge variant={report.status}>{report.status.replace('_', ' ').toUpperCase()}</Badge>
+                    <Badge variant={report.status.toLowerCase().replace(/[- ]/g, '_') as any}>{report.status.replace('_', ' ').toUpperCase()}</Badge>
                   </div>
                 </div>
                 <CardContent className="p-5">
