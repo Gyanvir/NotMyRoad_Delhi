@@ -1,0 +1,7 @@
+
+> @workspace/db@0.0.0 push E:\NMR_del_V2\NotMyRoad_Delhi\lib\db
+> drizzle-kit push --config ./drizzle.config.ts
+
+Reading config file 'E:\NMR_del_V2\NotMyRoad_Delhi\lib\db\drizzle.config.ts'
+DATABASE_URL, ensure the database is provisioned
+ ELIFECYCLE  Command failed with exit code 1.
