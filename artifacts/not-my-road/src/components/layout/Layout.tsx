@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Home, PlusCircle, LayoutDashboard, Globe, LogOut, UserCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "../ui/button";
+import { CompleteProfileModal } from "./CompleteProfileModal";
 
 export function Layout({ children }: { children: ReactNode }) {
   const [location] = useLocation();
@@ -22,6 +23,8 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/10 blur-[120px] rounded-full mix-blend-screen" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/10 blur-[120px] rounded-full mix-blend-screen" />
       </div>
+
+      <CompleteProfileModal />
 
       {/* Top Navbar (Desktop + Logo) */}
       <header className="sticky top-0 z-40 w-full glass-panel border-t-0 border-x-0 border-b border-white/5 px-4 h-16 flex items-center justify-between">

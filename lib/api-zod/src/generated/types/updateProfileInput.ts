@@ -6,10 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface User {
-  id: number;
-  email: string;
-  phoneNumber?: string | null;
-  name: string;
-  createdAt: Date;
+export interface UpdateProfileInput {
+  phoneNumber?: string;
+  name?: string;
 }

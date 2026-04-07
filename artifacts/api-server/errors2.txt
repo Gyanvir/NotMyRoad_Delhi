@@ -1,0 +1,2 @@
+src/routes/auth.ts(4,14): error TS2305: Module '"@workspace/db"' has no exported member 'usersTable'.
+src/routes/reports.ts(2,28): error TS2305: Module '"@workspace/db"' has no exported member 'usersTable'.

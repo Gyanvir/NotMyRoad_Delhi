@@ -1,2 +1,2 @@
 export * from "./reports";
-export { usersTable as usersTableFromUsers } from "./users";
+export * from "./users";

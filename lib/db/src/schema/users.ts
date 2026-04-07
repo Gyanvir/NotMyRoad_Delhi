@@ -3,6 +3,7 @@ import { pgTable, serial, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-co
 export const usersTable = pgTable('users', {
   id: serial('id').primaryKey(),
   email: text('email').notNull().unique(),
+  phoneNumber: text('phone_number'),
   name: text('name').notNull(),
   passwordHash: text('password_hash').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),

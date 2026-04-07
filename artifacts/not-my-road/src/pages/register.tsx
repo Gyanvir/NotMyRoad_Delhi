@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { Mail, Lock, User, AlertCircle, ArrowLeft } from "lucide-react";
+import { Mail, Lock, User, AlertCircle, ArrowLeft, Phone } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase";
 export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { register } = useAuth();
@@ -36,7 +37,7 @@ export default function Register() {
     setError("");
     setIsLoading(true);
     try {
-      await register({ name, email, password });
+      await register({ name, email, password, phoneNumber });
       setLocation("/dashboard");
     } catch (err: any) {
       const msg = err?.data?.error || err?.message || "Registration failed. Please try again.";
@@ -88,6 +89,14 @@ export default function Register() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   icon={<Mail className="w-5 h-5" />}
+                  required
+                />
+                <Input
+                  type="tel"
+                  placeholder="Mobile Number"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  icon={<Phone className="w-5 h-5" />}
                   required
                 />
                 <Input

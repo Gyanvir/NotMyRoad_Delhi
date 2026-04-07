@@ -1,0 +1,21 @@
+artifacts/not-my-road/src/components/ui/alert-dialog.tsx(5,10): error TS2305: Module '"@/components/ui/button"' has no exported member 'buttonVariants'.
+artifacts/not-my-road/src/components/ui/button-group.tsx(50,6): error TS2322: Type '{ ref?: Ref<HTMLDivElement> | undefined; key?: Key | null | undefined; defaultChecked?: boolean | undefined; defaultValue?: string | number | readonly string[] | undefined; ... 275 more ...; className: string; }' is not assignable to type 'SlotProps'.
+  Types of property 'onChange' are incompatible.
+    Type 'FormEventHandler<HTMLDivElement> | undefined' is not assignable to type 'ChangeEventHandler<HTMLElement, Element> | undefined'.
+      Type 'FormEventHandler<HTMLDivElement>' is not assignable to type 'ChangeEventHandler<HTMLElement, Element>'.
+        Types of parameters 'event' and 'event' are incompatible.
+          Type 'ChangeEvent<HTMLElement, Element>' is not assignable to type 'FormEvent<HTMLDivElement>'.
+            Types of property 'currentTarget' are incompatible.
+              Type 'EventTarget & HTMLElement' is not assignable to type 'EventTarget & HTMLDivElement'.
+                Property 'align' is missing in type 'EventTarget & HTMLElement' but required in type 'HTMLDivElement'.
+artifacts/not-my-road/src/components/ui/calendar.tsx(12,18): error TS2305: Module '"@/components/ui/button"' has no exported member 'buttonVariants'.
+artifacts/not-my-road/src/components/ui/calendar.tsx(132,15): error TS2322: Type 'React.Ref<HTMLDivElement> | undefined' is not assignable to type 'import("E:/NMR_del_V2/NotMyRoad_Delhi/node_modules/.pnpm/@types+react@19.2.14/node_modules/@types/react/index").Ref<HTMLDivElement> | undefined'.
+  Type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type 'Ref<HTMLDivElement> | undefined'.
+    Type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)' is not assignable to type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+      Type 'void | (() => VoidOrUndefinedOnly)' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'. Two different types with this name exist, but they are unrelated.
+        Type '() => VoidOrUndefinedOnly' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+          Type '() => VoidOrUndefinedOnly' is not assignable to type '() => VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+            Type 'VoidOrUndefinedOnly' is not assignable to type 'VoidOrUndefinedOnly'. Two different types with this name exist, but they are unrelated.
+              Type '{ [UNDEFINED_VOID_ONLY]: never; }' is not assignable to type 'VoidOrUndefinedOnly'.
+artifacts/not-my-road/src/components/ui/pagination.tsx(5,23): error TS2305: Module '"@/components/ui/button"' has no exported member 'buttonVariants'.
+artifacts/not-my-road/src/hooks/use-auth.tsx(22,5): error TS2741: Property 'queryKey' is missing in type '{ retry: false; }' but required in type 'UseQueryOptions<User, ErrorType<void>, User, readonly unknown[]>'.

@@ -19,7 +19,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const { data: user, isLoading: isQueryLoading, isFetching } = useGetCurrentUser({
-    query: { retry: false },
+    query: { retry: false, queryKey: getGetCurrentUserQueryKey() },
   });
 
   const loginMutation = useLogin();
