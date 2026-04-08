@@ -3,11 +3,11 @@
   "buildCommand": "pnpm build",
   "outputDirectory": "dist/public",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "https://notmyroad-delhi.onrender.com/api/$1" },
+    { "source": "/api/(.*)", "destination": "https://notmyroad.up.railway.app/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "https://notmyroad-delhi.onrender.com/api/$1" },
+    { "src": "/api/(.*)", "dest": "https://notmyroad.up.railway.app/api/$1" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]

@@ -12,7 +12,7 @@
 ## 🚀 Live Deployment
 
 - **Frontend (Web):** [https://notmyroad.vercel.app](https://notmyroad.vercel.app)
-- **Backend (API):** [https://notmyroad-delhi.onrender.com](https://notmyroad-delhi.onrender.com)
+- **Backend (API):** [https://notmyroad.up.railway.app](https://notmyroad.up.railway.app)
 
 ## ⚡ Built with Vibecoding
 
