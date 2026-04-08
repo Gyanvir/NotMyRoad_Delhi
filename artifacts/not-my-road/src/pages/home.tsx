@@ -163,7 +163,7 @@ export default function Home() {
             {/* Step 1 */}
             <div className="space-y-6 group">
               <div className="relative rounded-2xl overflow-hidden border border-white/10 aspect-[9/16] shadow-2xl transition-transform duration-500 group-hover:-translate-y-2">
-                <img src={`${import.meta.env.BASE_URL}images/step1_real.jpg`} alt="Report Issue UI" className="w-full h-full object-cover" />
+                <img src={`${import.meta.env.BASE_URL}images/step1.jpg`} alt="Report Issue UI" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="bg-primary text-primary-foreground w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl mb-4 shadow-[0_0_15px_rgba(var(--primary),0.5)]">1</div>
@@ -176,7 +176,7 @@ export default function Home() {
             {/* Step 2 */}
             <div className="space-y-6 group md:translate-y-8">
               <div className="relative rounded-2xl overflow-hidden border border-white/10 aspect-[9/16] shadow-2xl transition-transform duration-500 group-hover:-translate-y-2">
-                <img src={`${import.meta.env.BASE_URL}images/step2_real.jpg`} alt="Feed UI" className="w-full h-full object-cover" />
+                <img src={`${import.meta.env.BASE_URL}images/step2.jpg`} alt="Feed UI" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="bg-secondary text-secondary-foreground w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl mb-4 shadow-[0_0_15px_rgba(var(--secondary),0.5)]">2</div>
@@ -189,7 +189,7 @@ export default function Home() {
             {/* Step 3 */}
             <div className="space-y-6 group md:translate-y-16">
               <div className="relative rounded-2xl overflow-hidden border border-white/10 aspect-[9/16] shadow-2xl transition-transform duration-500 group-hover:-translate-y-2">
-                <img src={`${import.meta.env.BASE_URL}images/step3_real.jpg`} alt="Resolution Timeline UI" className="w-full h-full object-cover" />
+                <img src={`${import.meta.env.BASE_URL}images/step3.jpg`} alt="Resolution Timeline UI" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
                   <div className="bg-amber-500 text-amber-950 w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl mb-4 shadow-[0_0_15px_rgba(245,158,11,0.5)]">3</div>
