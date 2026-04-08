@@ -12,8 +12,9 @@ export default function Home() {
   const { data: recentReports } = useListReports({ limit: 3 });
 
   return (
-    <div className="flex flex-col gap-16">
-      {/* Hero Section */}
+    <>
+      <div className="flex flex-col gap-16">
+        {/* Hero Section */}
       <section className="relative rounded-3xl overflow-hidden min-h-[60vh] flex flex-col justify-center items-center text-center p-6 md:p-12 border border-white/10 shadow-2xl">
         <div className="absolute inset-0 z-0">
           <img
@@ -135,6 +136,125 @@ export default function Home() {
           ))}
         </div>
       </section>
-    </div>
+
+      {/* What is NMR Section */}
+      <section className="relative mt-12 px-6 py-16 md:py-24 rounded-3xl overflow-hidden border border-white/5 bg-card/20 shadow-2xl backdrop-blur-sm">
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 opacity-50" />
+        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
+          <Badge variant="outline" className="text-primary border-primary/30 mb-2">ABOUT THE INITIATIVE</Badge>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight">What is Not My Road?</h2>
+          <p className="text-lg text-muted-foreground leading-relaxed text-left md:text-center">
+            Not My Road (NMR) is a civic action platform designed to bridge the gap between citizens and local authorities like MCD, PWD, and NDMC. 
+            We empower you to take ownership of your city's infrastructure by reporting issues directly, tracking their resolution, and holding the system accountable. 
+            Because when a road is broken, it's not just "their" road—it's <em className="text-primary">our</em> city.
+          </p>
+        </div>
+      </section>
+
+      {/* How to Use Section */}
+      <section className="space-y-12 py-12">
+        <div className="text-center space-y-4">
+          <Badge variant="outline" className="text-secondary border-secondary/30">USER FLOW</Badge>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight">How to Use the App</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">Three simple steps to make your voice heard and get issues fixed in your neighborhood.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mt-12">
+          {/* Step 1 */}
+          <div className="space-y-6 group">
+            <div className="relative rounded-2xl overflow-hidden border border-white/10 aspect-[9/16] shadow-2xl transition-transform duration-500 group-hover:-translate-y-2">
+              <img src={`${import.meta.env.BASE_URL}images/step1.png`} alt="Report Issue UI" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                <div className="bg-primary text-primary-foreground w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl mb-4 shadow-[0_0_15px_rgba(var(--primary),0.5)]">1</div>
+                <h3 className="text-xl font-bold mb-2">Snap & Report</h3>
+                <p className="text-sm text-muted-foreground">Take a photo of the issue. Our app automatically captures your GPS location to alert the correct authority.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="space-y-6 group md:translate-y-8">
+            <div className="relative rounded-2xl overflow-hidden border border-white/10 aspect-[9/16] shadow-2xl transition-transform duration-500 group-hover:-translate-y-2">
+              <img src={`${import.meta.env.BASE_URL}images/step2.png`} alt="Track Status UI" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                <div className="bg-secondary text-secondary-foreground w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl mb-4 shadow-[0_0_15px_rgba(var(--secondary),0.5)]">2</div>
+                <h3 className="text-xl font-bold mb-2">Track Progress</h3>
+                <p className="text-sm text-muted-foreground">Watch the live feed or your profile dashboard. See real-time updates as tickets change from Pending to actioned.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="space-y-6 group md:translate-y-16">
+            <div className="relative rounded-2xl overflow-hidden border border-white/10 aspect-[9/16] shadow-2xl transition-transform duration-500 group-hover:-translate-y-2">
+              <img src={`${import.meta.env.BASE_URL}images/step3.png`} alt="Resolved Issue UI" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                <div className="bg-amber-500 text-amber-950 w-10 h-10 rounded-full flex items-center justify-center font-bold text-xl mb-4 shadow-[0_0_15px_rgba(245,158,11,0.5)]">3</div>
+                <h3 className="text-xl font-bold mb-2">Resolution</h3>
+                <p className="text-sm text-muted-foreground">Authorities resolve the issue and upload verification. The community benefits from safer, better maintained roads.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Support CTA */}
+      <section className="relative mt-8 md:mt-16 rounded-3xl overflow-hidden border border-primary/20 bg-primary/5 p-8 md:p-16 text-center">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-background to-background opacity-50" />
+        <div className="relative z-10 max-w-3xl mx-auto space-y-8">
+          <h2 className="text-3xl md:text-5xl font-bold">Join the Movement</h2>
+          <p className="text-lg text-muted-foreground">
+            We are looking for passionate individuals to support this social cause. Whether you can help spread awareness, assist in marketing, or contribute your tech skills to improve the platform—your help matters.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <a href="mailto:gyanvirsingh@example.com">
+              <Button size="lg" className="h-14 px-8 w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground">
+                Volunteer with Us
+              </Button>
+            </a>
+            <Button size="lg" variant="outline" className="h-14 px-8 w-full sm:w-auto border-primary/30 hover:bg-primary/10">
+              Share the App
+            </Button>
+          </div>
+        </div>
+      </section>
+      </div>
+
+      {/* Footer & About Section */}
+      <footer className="mt-24 pt-16 pb-8 border-t border-white/10 bg-background/50 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+          <div className="space-y-6">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle className="w-6 h-6 text-primary" />
+              <span className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">NotMyRoad.</span>
+            </div>
+            <p className="text-muted-foreground text-sm max-w-md leading-relaxed">
+              Built as a project by <strong className="text-foreground">Gyanvir Singh</strong>. 
+              NMR started from a personal frustration—the stress of navigating civic complaints and wondering how to get things fixed in Delhi. 
+              It is a continuous work in progress, and many more features are planned to be added to make civic reporting stress-free for everyone.
+            </p>
+          </div>
+          
+          <div className="flex flex-col md:items-end space-y-4">
+            <h4 className="font-bold text-lg">Quick Links</h4>
+            <nav className="flex flex-col space-y-2 text-sm text-muted-foreground md:text-right">
+              <Link href="/report" className="hover:text-primary transition-colors">Report an Issue</Link>
+              <Link href="/feed" className="hover:text-primary transition-colors">Live Feed</Link>
+            </nav>
+          </div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Not My Road. All rights reserved.</p>
+          <p className="text-xs text-muted-foreground flex items-center">
+            Designed for absolute change <AlertTriangle className="w-3 h-3 ml-1 text-primary/50" />
+          </p>
+        </div>
+      </footer>
+    </>
   );
 }
