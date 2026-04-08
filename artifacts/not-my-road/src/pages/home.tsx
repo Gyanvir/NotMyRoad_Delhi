@@ -235,7 +235,6 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
           <div className="space-y-6">
             <div className="flex items-center space-x-2">
-              <AlertTriangle className="w-6 h-6 text-primary" />
               <span className="text-2xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">NotMyRoad.</span>
             </div>
             <p className="text-muted-foreground text-sm max-w-md leading-relaxed">
@@ -257,7 +256,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Not My Road. All rights reserved.</p>
           <p className="text-xs text-muted-foreground flex items-center">
-            Designed for absolute change <AlertTriangle className="w-3 h-3 ml-1 text-primary/50" />
+            Designed for absolute change
           </p>
         </div>
       </footer>
