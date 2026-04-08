@@ -38,7 +38,7 @@ export default function Dashboard() {
     return (
       <div className="flex flex-col items-center justify-center py-32 gap-6 text-center">
         <div className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center">
-          <span className="text-primary font-bold text-2xl">NR</span>
+          <span className="text-primary font-bold text-2xl">NMR</span>
         </div>
         <div>
           <h2 className="text-2xl font-bold mb-2">Sign in to view your dashboard</h2>
