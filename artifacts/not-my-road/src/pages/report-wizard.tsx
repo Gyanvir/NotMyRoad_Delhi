@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { Camera, MapPin, AlertTriangle, Building, Send, ChevronRight, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
@@ -27,8 +27,17 @@ export default function ReportWizard() {
   const [, setLocation] = useLocation();
   const createReportMutation = useCreateReport();
 
-  const [step, setStep] = useState(1);
-  const [formData, setFormData] = useState({
+  const loadDraft = () => {
+    try {
+      const draft = sessionStorage.getItem("reportWizardDraft");
+      if (draft) return JSON.parse(draft);
+    } catch (e) {}
+    return null;
+  };
+  const draft = loadDraft();
+
+  const [step, setStep] = useState<number>(draft?.step || 1);
+  const defaultFormData = {
     imageUrl: "",
     latitude: 0,
     longitude: 0,
@@ -37,14 +46,29 @@ export default function ReportWizard() {
     roadType: "main_road" as keyof typeof CreateReportInputRoadType,
     description: "",
     authority: "MCD" as keyof typeof CreateReportInputAuthority,
-  });
+  };
+  const [formData, setFormData] = useState<typeof defaultFormData>(draft?.formData || defaultFormData);
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState("");
-  const [locationCaptured, setLocationCaptured] = useState(false);
+  const [locationCaptured, setLocationCaptured] = useState<boolean>(draft?.locationCaptured || false);
   const [editingCoords, setEditingCoords] = useState(false);
-  const [latInput, setLatInput] = useState("");
-  const [lngInput, setLngInput] = useState("");
+  const [latInput, setLatInput] = useState<string>(draft?.latInput || "");
+  const [lngInput, setLngInput] = useState<string>(draft?.lngInput || "");
   const [stepError, setStepError] = useState("");
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("reportWizardDraft", JSON.stringify({
+        step,
+        formData,
+        locationCaptured,
+        latInput,
+        lngInput
+      }));
+    } catch (e) {
+      console.warn("Could not save to sessionStorage (quota exceeded?)", e);
+    }
+  }, [step, formData, locationCaptured, latInput, lngInput]);
 
   if (authLoading) {
     return (
@@ -145,6 +169,7 @@ export default function ReportWizard() {
           ...formData
         }
       });
+      sessionStorage.removeItem("reportWizardDraft");
       setLocation(`/report/${res.id}`);
     } catch (error) {
       console.error("Failed to submit report", error);
@@ -402,26 +427,66 @@ export default function ReportWizard() {
                   <h2 className="text-2xl font-display font-bold">Review & Submit</h2>
 
                   <div className="bg-card rounded-xl border border-white/5 overflow-hidden">
-                    <img src={formData.imageUrl || `${import.meta.env.BASE_URL}images/hero-bg.png`} className="w-full h-40 object-cover opacity-80" alt="Report visual" />
-                    <div className="p-5 space-y-4">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground block mb-1">Issue</span>
-                          <span className="font-semibold capitalize text-foreground">{formData.issueType.replace('_', ' ')}</span>
+                    <div className="relative">
+                      <img src={formData.imageUrl || `${import.meta.env.BASE_URL}images/hero-bg.png`} className="w-full h-40 object-cover opacity-80" alt="Report visual" />
+                      <Button variant="secondary" size="sm" className="absolute top-2 right-2 bg-background/80 hover:bg-background/90 backdrop-blur-sm" onClick={() => setStep(1)}>
+                        Edit Photo
+                      </Button>
+                    </div>
+                    
+                    <div className="p-5 space-y-6">
+                      
+                      <div>
+                        <div className="flex justify-between items-center mb-3 border-b border-border pb-2">
+                          <h3 className="font-semibold text-primary">GPS & Area</h3>
+                          <div className="flex gap-2">
+                             <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="h-7 text-xs">Edit GPS</Button>
+                             <Button variant="ghost" size="sm" onClick={() => setStep(2)} className="h-7 text-xs">Edit Area</Button>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-muted-foreground block mb-1">Authority</span>
-                          <span className="font-semibold text-primary">{formData.authority}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground block mb-1">Location</span>
-                          <span className="font-medium text-foreground">{formData.area || "Area not specified"}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground block mb-1">Coordinates</span>
-                          <span className="font-mono text-xs text-foreground">{formData.latitude.toFixed(4)}°N, {formData.longitude.toFixed(4)}°E</span>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground block mb-1">Area / Locality</span>
+                            <span className="font-medium text-foreground">{formData.area || "Area not specified"}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block mb-1">Coordinates</span>
+                            <span className="font-mono text-xs text-foreground">{formData.latitude.toFixed(4)}°N, {formData.longitude.toFixed(4)}°E</span>
+                          </div>
                         </div>
                       </div>
+
+                      <div>
+                        <div className="flex justify-between items-center mb-3 border-b border-border pb-2">
+                          <h3 className="font-semibold text-primary">Issue Details</h3>
+                          <Button variant="ghost" size="sm" onClick={() => setStep(2)} className="h-7 text-xs">Edit Details</Button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground block mb-1">Issue Type</span>
+                            <span className="font-semibold capitalize text-foreground">{formData.issueType.replace('_', ' ')}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block mb-1">Road Type</span>
+                            <span className="font-medium capitalize text-foreground">{formData.roadType.replace('_', ' ')}</span>
+                          </div>
+                          <div className="col-span-2">
+                            <span className="text-muted-foreground block mb-1">Description</span>
+                            <span className="text-foreground">{formData.description || "No description provided."}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="flex justify-between items-center mb-3 border-b border-border pb-2">
+                          <h3 className="font-semibold text-primary">Authority</h3>
+                          <Button variant="ghost" size="sm" onClick={() => setStep(3)} className="h-7 text-xs">Edit</Button>
+                        </div>
+                        <div className="text-lg font-bold text-secondary">
+                          {formData.authority}
+                        </div>
+                      </div>
+
                     </div>
                   </div>
 
