@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Camera, MapPin, AlertTriangle, Building, Send, ChevronRight, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { useCreateReport, CreateReportInputIssueType, CreateReportInputRoadType, CreateReportInputAuthority } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,6 +56,7 @@ export default function ReportWizard() {
   const [latInput, setLatInput] = useState<string>(draft?.latInput || "");
   const [lngInput, setLngInput] = useState<string>(draft?.lngInput || "");
   const [stepError, setStepError] = useState("");
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
   useEffect(() => {
     try {
@@ -148,15 +150,77 @@ export default function ReportWizard() {
   };
   const handlePrev = () => { setStepError(""); setStep((s) => Math.max(s - 1, 1)); };
 
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
-        setStepError("");
+  const compressImage = (file: File): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const max_dim = 1024;
+
+        if (width > height) {
+          if (width > max_dim) {
+            height = Math.round((height * max_dim) / width);
+            width = max_dim;
+          }
+        } else {
+          if (height > max_dim) {
+            width = Math.round((width * max_dim) / height);
+            height = max_dim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error("Failed to get canvas context"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error("Failed to compress image"));
+          },
+          'image/jpeg',
+          0.7
+        );
       };
-      reader.readAsDataURL(file);
+      img.onerror = (err) => reject(err);
+    });
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingPhoto(true);
+    setStepError("");
+
+    try {
+      const compressedBlob = await compressImage(file);
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.jpg`;
+      const filePath = `${user?.id || 'anonymous'}/${fileName}`;
+
+      const { error } = await supabase.storage
+        .from('reports')
+        .upload(filePath, compressedBlob, { contentType: 'image/jpeg' });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('reports')
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({ ...prev, imageUrl: publicUrl }));
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      setStepError(err.message || "Failed to upload photo. Please check your connection and try again.");
+    } finally {
+      setIsUploadingPhoto(false);
     }
   };
 
@@ -231,11 +295,20 @@ export default function ReportWizard() {
                         </Button>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-primary/50 rounded-xl cursor-pointer bg-primary/5 hover:bg-primary/10 transition-colors">
-                        <Camera className="w-10 h-10 text-primary mb-2" />
-                        <span className="text-primary font-medium">Click to upload photo</span>
-                        <span className="text-xs text-muted-foreground mt-1">Required — photo evidence of the issue</span>
-                        <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} />
+                      <label className={`flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-primary/50 rounded-xl cursor-pointer bg-primary/5 hover:bg-primary/10 transition-colors ${isUploadingPhoto ? 'opacity-50 pointer-events-none' : ''}`}>
+                        {isUploadingPhoto ? (
+                          <>
+                            <Loader2 className="w-10 h-10 text-primary mb-2 animate-spin" />
+                            <span className="text-primary font-medium">Uploading...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Camera className="w-10 h-10 text-primary mb-2" />
+                            <span className="text-primary font-medium">Click to upload photo</span>
+                            <span className="text-xs text-muted-foreground mt-1">Required — photo evidence of the issue</span>
+                          </>
+                        )}
+                        <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={isUploadingPhoto} />
                       </label>
                     )}
                   </div>
